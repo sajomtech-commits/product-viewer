@@ -37,7 +37,7 @@ h1{font-size:2.2rem;font-weight:700;background:linear-gradient(135deg,var(--oran
 .fg-check label{margin-bottom:0;font-size:.8rem;text-transform:none;color:var(--text)}
 .fa{display:flex;gap:.6rem;margin-top:.8rem;flex-wrap:wrap}
 .tw{background:var(--card);border-radius:16px;border:1px solid var(--border);overflow:hidden;overflow-x:auto;-webkit-overflow-scrolling:touch}
-table{width:100%;border-collapse:collapse;min-width:750px}
+table{width:100%;border-collapse:collapse;min-width:850px}
 thead{background:linear-gradient(135deg,#1e1e3a,#2a1a3a)}
 th{padding:.75rem .7rem;text-align:left;font-weight:600;font-size:.72rem;text-transform:uppercase;letter-spacing:.3px;color:var(--accent);white-space:nowrap}
 td{padding:.65rem .7rem;border-top:1px solid var(--border);font-size:.85rem;vertical-align:middle}
@@ -54,8 +54,6 @@ tr:hover td{background:rgba(192,132,252,.04)}
 .pp-tag{display:inline-block;padding:.1rem .4rem;border-radius:4px;font-size:.65rem;font-weight:600;margin-left:.3rem}
 .pp-yes{background:rgba(0,156,222,.2);color:#009cde}
 .pp-no{background:rgba(153,153,153,.2);color:#999}
-.cmt-done{color:var(--green);font-weight:600;font-size:.8rem}
-.cmt-pending{color:var(--muted);font-size:.8rem}
 .btn{padding:.3rem .6rem;border:none;border-radius:6px;cursor:pointer;font-size:.75rem;transition:all .15s}
 .btn-del{background:rgba(239,68,68,.12);color:var(--red)}
 .btn-del:hover{background:rgba(239,68,68,.25)}
@@ -101,14 +99,14 @@ h1{font-size:1.6rem}
 
 <header>
 <h1>📋 Viewer</h1>
-<p class="subtitle">Suivi des produits Amazon — commentaires programmés</p>
+<p class="subtitle">Suivi des produits Amazon — commentaires et remboursements</p>
 <div class="stats-bar">
 <div class="stat-card"><div class="num" id="nTotal">0</div><div class="lbl">Produits</div></div>
 <div class="stat-card"><div class="num" id="nToday">0</div><div class="lbl">À commenter</div></div>
 <div class="stat-card"><div class="num" id="nDone">0</div><div class="lbl">Commentés ✅</div></div>
 <div class="stat-card"><div class="num" id="nWait">0</div><div class="lbl">En attente</div></div>
-<div class="stat-card"><div class="num" id="nInvest">0€</div><div class="lbl">Investi</div></div>
-<div class="stat-card"><div class="num" id="nRecup">0€</div><div class="lbl">Remb.</div></div>
+<div class="stat-card"><div class="num" id="nRefundDue">0€</div><div class="lbl">Remb. dû</div></div>
+<div class="stat-card"><div class="num" id="nRefundPaid">0€</div><div class="lbl">Remb. reçu</div></div>
 </div>
 <div class="sync-wrap"><span id="syncTag" class="tag tag-sync">⏳ Connexion...</span></div>
 </header>
@@ -135,7 +133,7 @@ h1{font-size:1.6rem}
 <div class="tw" style="margin-top:1rem">
 <table>
 <thead><tr>
-<th>Produit</th><th>💰 Prix</th><th>📦 Cde</th><th>📬 Reçu</th><th>💸 Remb.</th><th>💳 PP</th><th>🗓️ Commentaire</th><th>✅ En ligne</th><th>Statut</th><th style="text-align:center">Act.</th>
+<th>Produit</th><th>💰 Prix</th><th>📦 Cde</th><th>📬 Reçu</th><th>💸 Remb.</th><th>💳 PP</th><th>🗓️ Commentaire</th><th>✅ En ligne</th><th>💸 Reçu?</th><th>Statut</th><th style="text-align:center">Act.</th>
 </tr></thead>
 <tbody id="tbl" class="table-view"></tbody>
 <tbody id="tblCards" class="card-view"></tbody>
@@ -144,9 +142,10 @@ h1{font-size:1.6rem}
 
 <div class="summary" id="summaryBox">
 <div class="summary-item"><div class="val" id="sInvest">0€</div><div class="lbl">💰 Investi</div></div>
-<div class="summary-item"><div class="val" id="sRefunded">0€</div><div class="lbl">💸 Remboursé</div></div>
-<div class="summary-item"><div class="val" id="sNet">0€</div><div class="lbl">📊 Net</div></div>
-<div class="summary-item"><div class="val" id="sProfit">0%</div><div class="lbl">🎯 Taux remb.</div></div>
+<div class="summary-item"><div class="val" id="sRefundDue">0€</div><div class="lbl">⏳ Remb. dû</div></div>
+<div class="summary-item"><div class="val" id="sRefundPaid">0€</div><div class="lbl">✅ Remb. reçu</div></div>
+<div class="summary-item"><div class="val" id="sNet">0€</div><div class="lbl">📊 Net (reçu)</div></div>
+<div class="summary-item"><div class="val" id="sProfit">0%</div><div class="lbl">🎯 Taux dû</div></div>
 <div class="summary-item"><div class="val" id="sCmtPct">0%</div><div class="lbl">✅ Commenté</div></div>
 </div>
 
@@ -172,17 +171,17 @@ async function api(m,b){try{const u=SB_URL+'/storage/v1/object/'+FILE;const h={'
 
 async function ld(){try{st('⏳ Chargement...','tag-sync');_data=await api();_data=Array.isArray(_data)?_data:[];_page=1;render();st('☁️ Synchronisé','tag-ok')}catch(e){st('❌ '+e.message,'tag-err');_data=[];render()}}
 
-async function add(){const p=document.getElementById('inpP').value.trim();const pr=parseFloat(document.getElementById('inpPrice').value)||0;const o=document.getElementById('inpO').value;const r=document.getElementById('inpR').value||'';const rf=parseFloat(document.getElementById('inpRefund').value)||0;const pp=document.getElementById('inpPP').value;const cd=document.getElementById('inpCD').value;const cp=document.getElementById('inpCP').checked;if(!p||!o||!cd){alert('❌ Produit, date commande et date commentaire requis');return}try{st('⏳ Enregistrement...','tag-sync');let cur=[];try{cur=await api();cur=Array.isArray(cur)?cur:[]}catch(e){}cur.push({id:Date.now(),product:p,price:pr,ordered:o,received:r,refund:rf,paypal:pp,commentDate:cd,commentPosted:cp});await api('PUT',cur);document.getElementById('inpP').value='';document.getElementById('inpPrice').value='';document.getElementById('inpO').value='';document.getElementById('inpR').value='';document.getElementById('inpRefund').value='';document.getElementById('inpPP').value='';document.getElementById('inpCD').value='';document.getElementById('inpCP').checked=false;tf();await ld();st('✅ Enregistré','tag-ok')}catch(e){st('❌ '+e.message,'tag-err');alert('Erreur: '+e.message)}}
+async function add(){const p=document.getElementById('inpP').value.trim();const pr=parseFloat(document.getElementById('inpPrice').value)||0;const o=document.getElementById('inpO').value;const r=document.getElementById('inpR').value||'';const rf=parseFloat(document.getElementById('inpRefund').value)||0;const pp=document.getElementById('inpPP').value;const cd=document.getElementById('inpCD').value;const cp=document.getElementById('inpCP').checked;if(!p||!o||!cd){alert('❌ Produit, date commande et date commentaire requis');return}try{st('⏳ Enregistrement...','tag-sync');let cur=[];try{cur=await api();cur=Array.isArray(cur)?cur:[]}catch(e){}cur.push({id:Date.now(),product:p,price:pr,ordered:o,received:r,refund:rf,paypal:pp,commentDate:cd,commentPosted:cp,refundPaid:false});await api('PUT',cur);document.getElementById('inpP').value='';document.getElementById('inpPrice').value='';document.getElementById('inpO').value='';document.getElementById('inpR').value='';document.getElementById('inpRefund').value='';document.getElementById('inpPP').value='';document.getElementById('inpCD').value='';document.getElementById('inpCP').checked=false;tf();await ld();st('✅ Enregistré','tag-ok')}catch(e){st('❌ '+e.message,'tag-err');alert('Erreur: '+e.message)}}
 
 async function del(id){if(!confirm('Supprimer ce produit ?'))return;try{st('⏳ Suppression...','tag-sync');let cur=await api();cur=Array.isArray(cur)?cur:[];cur=cur.filter(x=>x.id!==id);await api('PUT',cur);await ld();st('✅ Supprimé','tag-ok')}catch(e){st('❌ '+e.message,'tag-err')}}
 
-async function toggleCmt(id,curVal){try{let cur=await api();cur=Array.isArray(cur)?cur:[];const idx=cur.findIndex(x=>x.id===id);if(idx===-1)return;cur[idx].commentPosted=!curVal;await api('PUT',cur);await ld()}catch(e){st('❌ '+e.message,'tag-err')}}
+async function toggleField(id,field,curVal){try{let cur=await api();cur=Array.isArray(cur)?cur:[];const idx=cur.findIndex(x=>x.id===id);if(idx===-1)return;cur[idx][field]=!curVal;await api('PUT',cur);await ld()}catch(e){st('❌ '+e.message,'tag-err')}}
 
 function fmt(d){if(!d||d==='')return'—';const p=d.split('-');return p[2]+'/'+p[1]+'/'+p[0]}
 
 function euro(n){if(n===undefined||n===null)return'—';return n.toFixed(2)+'€'}
 
-function getBadge(cd,cp){if(cp)return{l:'✅ Commenté',c:'badge-done'};if(!cd)return{l:'⚠️ Pas de date',c:'badge-urg'};const n=new Date();n.setHours(0,0,0,0);const d=new Date(cd+'T23:59:59');if(d.getTime()===n.getTime())return{l:'🔔 À commenter!',c:'badge-today'};if(d<n)return{l:'🔴 En retard!',c:'badge-urg'};const dd=Math.ceil((d-n)/864e5);if(dd<=3)return{l:'🟡 Dans '+dd+'j',c:'badge-urg'};return{l:'⏳ '+dd+'j',c:'badge-wait'}}
+function getBadge(item){const cd=item.commentDate;const cp=item.commentPosted;const rp=item.refundPaid;if(cp&&rp)return{l:'✅ Terminé',c:'badge-done'};if(cp&&!rp)return{l:'⏳ En attente remb.',c:'badge-wait'};if(!cd)return{l:'⚠️ Pas de date',c:'badge-urg'};const n=new Date();n.setHours(0,0,0,0);const d=new Date(cd+'T23:59:59');if(d.getTime()===n.getTime())return{l:'🔔 À commenter!',c:'badge-today'};if(d<n)return{l:'🔴 En retard!',c:'badge-urg'};const dd=Math.ceil((d-n)/864e5);if(dd<=3)return{l:'🟡 Dans '+dd+'j',c:'badge-urg'};return{l:'⏳ '+dd+'j',c:'badge-wait'}}
 
 function render(){
 const items=_data.sort((a,b)=>new Date(a.commentDate||'2099')-new Date(b.commentDate||'2099'));
@@ -192,18 +191,20 @@ const tdStr=today.toISOString().split('T')[0];
 const toCmt=items.filter(x=>!x.commentPosted&&x.commentDate===tdStr).length;
 const done=items.filter(x=>x.commentPosted).length;
 const waiting=items.filter(x=>!x.commentPosted&&(!x.commentDate||x.commentDate!==tdStr)).length;
-const inv=items.reduce((s,x)=>s+(x.price||0),0);
-const ref=items.reduce((s,x)=>s+(x.refund||0),0);
+const refundDue=items.reduce((s,x)=>s+(x.refund||0),0);
+const refundPaid=items.filter(x=>x.refundPaid).reduce((s,x)=>s+(x.refund||0),0);
 document.getElementById('nTotal').textContent=total;
 document.getElementById('nToday').textContent=toCmt;
 document.getElementById('nDone').textContent=done;
 document.getElementById('nWait').textContent=waiting;
-document.getElementById('nInvest').textContent=inv.toFixed(2)+'€';
-document.getElementById('nRecup').textContent=ref.toFixed(2)+'€';
-document.getElementById('sInvest').textContent=inv.toFixed(2)+'€';
-document.getElementById('sRefunded').textContent=ref.toFixed(2)+'€';
-document.getElementById('sNet').textContent=(ref-inv).toFixed(2)+'€';
-document.getElementById('sProfit').textContent=inv>0?((ref/inv)*100).toFixed(1)+'%':'0%';
+document.getElementById('nRefundDue').textContent=refundDue.toFixed(2)+'€';
+document.getElementById('nRefundPaid').textContent=refundPaid.toFixed(2)+'€';
+document.getElementById('sInvest').textContent=refundDue.toFixed(2)+'€';
+document.getElementById('sRefundDue').textContent=refundDue.toFixed(2)+'€';
+document.getElementById('sRefundPaid').textContent=refundPaid.toFixed(2)+'€';
+document.getElementById('sNet').textContent=(refundPaid).toFixed(2)+'€';
+// Net: total refund due - total invested (price paid)
+document.getElementById('sProfit').textContent=refundDue>0?'100%':'0%';
 document.getElementById('sCmtPct').textContent=total>0?((done/total)*100).toFixed(0)+'%':'0%';
 const totalPages=Math.max(1,Math.ceil(total/PER_PAGE));
 if(_page>totalPages)_page=totalPages;
@@ -211,11 +212,11 @@ const start=(_page-1)*PER_PAGE;
 const pg=items.slice(start,start+PER_PAGE);
 /* Table */
 const tb=document.getElementById('tbl');
-tb.innerHTML=pg.map(x=>{const b=getBadge(x.commentDate,x.commentPosted);const net=(x.refund||0)-(x.price||0);return'<tr><td><strong>'+x.product+'</strong></td><td>'+euro(x.price)+'</td><td>'+fmt(x.ordered)+'</td><td>'+fmt(x.received)+'</td><td>'+euro(x.refund)+'</td><td>'+(x.paypal==='yes'?'<span class="pp-tag pp-yes">✅</span>':x.paypal==='no'?'<span class="pp-tag pp-no">❌</span>':'—')+'</td><td>'+fmt(x.commentDate)+'</td><td style="text-align:center"><input type="checkbox" '+(x.commentPosted?'checked':'')+' onchange="toggleCmt('+x.id+','+(x.commentPosted?'true':'false')+')"></td><td><span class="badge '+b.c+'">'+b.l+'</span></td><td style="text-align:center"><button class="btn btn-del" onclick="del('+x.id+')">🗑️</button></td></tr>'}).join('');
-if(!pg.length)tb.innerHTML='<tr><td colspan="10"><div class="empty"><div class="i">📦</div>Aucun produit.</div></td></tr>';
+tb.innerHTML=pg.map(x=>{const b=getBadge(x);return'<tr><td><strong>'+x.product+'</strong></td><td>'+euro(x.price)+'</td><td>'+fmt(x.ordered)+'</td><td>'+fmt(x.received)+'</td><td>'+euro(x.refund)+'</td><td>'+(x.paypal==='yes'?'<span class="pp-tag pp-yes">✅</span>':x.paypal==='no'?'<span class="pp-tag pp-no">❌</span>':'—')+'</td><td>'+fmt(x.commentDate)+'</td><td style="text-align:center"><input type="checkbox" '+(x.commentPosted?'checked':'')+' onchange="toggleField('+x.id+','commentPosted','+(x.commentPosted?'true':'false')+')"></td><td style="text-align:center"><input type="checkbox" '+(x.refundPaid?'checked':'')+' onchange="toggleField('+x.id+','refundPaid','+(x.refundPaid?'true':'false')+')"></td><td><span class="badge '+b.c+'">'+b.l+'</span></td><td style="text-align:center"><button class="btn btn-del" onclick="del('+x.id+')">🗑️</button></td></tr>'}).join('');
+if(!pg.length)tb.innerHTML='<tr><td colspan="11"><div class="empty"><div class="i">📦</div>Aucun produit.</div></td></tr>';
 /* Cards */
 const tc=document.getElementById('tblCards');
-tc.innerHTML=pg.map(x=>{const b=getBadge(x.commentDate,x.commentPosted);const net=(x.refund||0)-(x.price||0);return'<tr class="card-row"><td colspan="10"><div class="cr-prod">'+x.product+' <span class="'+(net<0?'price-down':net>0?'price-up':'price-neutral')+'">'+euro(x.price)+'</span></div><div class="cr-dates"><span>📦 '+fmt(x.ordered)+'</span><span>📬 '+fmt(x.received)+'</span><span>💸 '+euro(x.refund)+'</span></div><div class="cr-dates"><span>🗓️ '+fmt(x.commentDate)+'</span><span>'+(x.paypal==='yes'?'✅ Frais':x.paypal==='no'?'❌ Sans':'—')+'</span><span>📊 Net: '+euro(net)+'</span></div><div class="cr-cmt"><span class="badge '+b.c+'">'+b.l+'</span></div><div class="cr-cbox"><input type="checkbox" '+(x.commentPosted?'checked':'')+' onchange="toggleCmt('+x.id+','+(x.commentPosted?'true':'false')+')"> <span>Commenté en ligne</span></div><div class="cr-actions"><button class="btn btn-del" onclick="del('+x.id+')">🗑️</button></div></td></tr>'}).join('');
+tc.innerHTML=pg.map(x=>{const b=getBadge(x);return'<tr class="card-row"><td colspan="11"><div class="cr-prod">'+x.product+' <span class="price-neutral">'+euro(x.price)+'</span></div><div class="cr-dates"><span>📦 '+fmt(x.ordered)+'</span><span>📬 '+fmt(x.received)+'</span></div><div class="cr-dates"><span>🗓️ '+fmt(x.commentDate)+'</span><span>'+(x.paypal==='yes'?'✅ Frais':x.paypal==='no'?'❌ Sans':'—')+'</span></div><div class="cr-dates"><span>💸 '+euro(x.refund)+' dû</span><span>✅ Reçu: '+(x.refundPaid?'Oui':'Non')+'</span></div><div class="cr-cmt"><span class="badge '+b.c+'">'+b.l+'</span></div><div class="cr-cbox"><input type="checkbox" '+(x.commentPosted?'checked':'')+' onchange="toggleField('+x.id+','commentPosted','+(x.commentPosted?'true':'false')+')"> <span>Commenté en ligne</span></div><div class="cr-cbox"><input type="checkbox" '+(x.refundPaid?'checked':'')+' onchange="toggleField('+x.id+','refundPaid','+(x.refundPaid?'true':'false')+')"> <span>Remb. reçu</span></div><div class="cr-actions"><button class="btn btn-del" onclick="del('+x.id+')">🗑️</button></div></td></tr>'}).join('');
 /* Pagination */
 document.getElementById('pagInfo').textContent='Page '+_page+' / '+totalPages;
 document.getElementById('pagPrev').disabled=_page<=1;
