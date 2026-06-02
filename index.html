@@ -2,162 +2,520 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-<title>Viewer — Suivi Produits Amazon</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Budget Manager</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-:root{--bg:#0f0f1a;--card:#1a1a2e;--border:#2a2a4a;--text:#e0e0e0;--muted:#888;--accent:#c084fc;--orange:#ff9900;--green:#22c55e;--red:#ef4444;--yellow:#fbbf24;--radius:12px}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:1rem}
-.container{max-width:1100px;margin:0 auto}
-header{text-align:center;margin-bottom:1.5rem}
-h1{font-size:2.2rem;font-weight:700;background:linear-gradient(135deg,var(--orange),#ff6b6b,var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.subtitle{color:var(--muted);margin-top:.25rem;font-size:.95rem}
-.stats-bar{display:flex;gap:.8rem;justify-content:center;margin:1rem 0;flex-wrap:wrap}
-.stat-card{background:var(--card);padding:.6rem 1.2rem;border-radius:var(--radius);border:1px solid var(--border);text-align:center;min-width:90px;flex:1}
-.stat-card .num{font-size:1.5rem;font-weight:700;color:var(--orange)}
-.stat-card .lbl{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
-.sync-wrap{display:flex;gap:.5rem;justify-content:center;margin:.6rem 0;flex-wrap:wrap}
-.tag{display:inline-block;padding:.2rem .7rem;border-radius:20px;font-size:.7rem;font-weight:600}
-.tag-ok{background:rgba(34,197,94,.15);color:var(--green)}
-.tag-err{background:rgba(239,68,68,.15);color:var(--red)}
-.tag-sync{background:rgba(251,191,36,.15);color:var(--yellow)}
-.btn-pri{background:linear-gradient(135deg,var(--accent),var(--orange));color:#fff;padding:.55rem 1.3rem;border:none;border-radius:10px;font-size:.9rem;font-weight:600;cursor:pointer;transition:opacity .2s;display:inline-flex;align-items:center;gap:.4rem}
-.btn-pri:hover{opacity:.88}
-.btn-sec{background:#333;color:#aaa;padding:.55rem 1.3rem;border:none;border-radius:10px;font-size:.9rem;cursor:pointer;transition:background .2s}
-.btn-sec:hover{background:#444}
-.form-box{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.2rem;margin-bottom:1.2rem;display:none;animation:slideIn .2s ease}
-.form-box.show{display:block}
-@keyframes slideIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
-.frow{display:grid;grid-template-columns:repeat(auto-fill,minmax(165px,1fr));gap:.6rem}
-.fg label{display:block;font-size:.72rem;color:var(--muted);margin-bottom:.2rem;text-transform:uppercase;letter-spacing:.5px}
-.fg input,.fg select{width:100%;padding:.55rem .7rem;background:#111;border:1px solid #333;border-radius:8px;color:var(--text);font-size:.85rem}
-.fg input:focus,.fg select:focus{outline:none;border-color:var(--accent)}
-.fg-check{display:flex;align-items:center;gap:.5rem;padding-top:.3rem}
-.fg-check input[type=checkbox]{width:auto;accent-color:var(--accent);transform:scale(1.1)}
-.fg-check label{margin-bottom:0;font-size:.8rem;text-transform:none;color:var(--text)}
-.fa{display:flex;gap:.6rem;margin-top:.8rem;flex-wrap:wrap}
-.tw{background:var(--card);border-radius:16px;border:1px solid var(--border);overflow:hidden;overflow-x:auto;-webkit-overflow-scrolling:touch}
-table{width:100%;border-collapse:collapse;min-width:850px}
-thead{background:linear-gradient(135deg,#1e1e3a,#2a1a3a)}
-th{padding:.75rem .7rem;text-align:left;font-weight:600;font-size:.72rem;text-transform:uppercase;letter-spacing:.3px;color:var(--accent);white-space:nowrap}
-td{padding:.65rem .7rem;border-top:1px solid var(--border);font-size:.85rem;vertical-align:middle}
-tr:hover td{background:rgba(192,132,252,.04)}
-.badge{display:inline-block;padding:.15rem .6rem;border-radius:20px;font-size:.7rem;font-weight:600;white-space:nowrap}
-.badge-done{background:rgba(34,197,94,.15);color:var(--green)}
-.badge-wait{background:rgba(251,191,36,.15);color:var(--yellow)}
-.badge-urg{background:rgba(239,68,68,.15);color:var(--red)}
-.badge-today{background:rgba(251,191,36,.25);color:var(--yellow);animation:pulse 1.5s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
-.price-up{color:var(--green);font-weight:600}
-.price-down{color:var(--red);font-weight:600}
-.price-neutral{color:var(--muted)}
-.pp-tag{display:inline-block;padding:.1rem .4rem;border-radius:4px;font-size:.65rem;font-weight:600;margin-left:.3rem}
-.pp-yes{background:rgba(0,156,222,.2);color:#009cde}
-.pp-no{background:rgba(153,153,153,.2);color:#999}
-.btn{padding:.3rem .6rem;border:none;border-radius:6px;cursor:pointer;font-size:.75rem;transition:all .15s}
-.btn-del{background:rgba(239,68,68,.12);color:var(--red)}
-.btn-del:hover{background:rgba(239,68,68,.25)}
-.card-view{display:none}
-.empty{text-align:center;padding:2.5rem 1rem;color:#666}
-.empty .i{font-size:3rem;margin-bottom:.8rem}
-.summary{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:.8rem 1rem;margin-top:1rem;display:flex;gap:1.2rem;flex-wrap:wrap;justify-content:center}
-.summary-item{text-align:center}
-.summary-item .val{font-size:1.1rem;font-weight:700}
-.summary-item .lbl{font-size:.7rem;color:var(--muted);text-transform:uppercase}
-.pagination{display:flex;justify-content:center;align-items:center;gap:.5rem;margin-top:1rem;flex-wrap:wrap}
-.pagination button{padding:.35rem .8rem;border:1px solid var(--border);border-radius:6px;background:var(--card);color:var(--text);cursor:pointer;font-size:.8rem}
-.pagination button:disabled{opacity:.4;cursor:default}
-.pagination .pi{font-size:.85rem;color:var(--muted)}
-.ft{text-align:center;margin-top:1.5rem;color:#555;font-size:.75rem}
-@media(max-width:768px){
-body{padding:.6rem}
-h1{font-size:1.6rem}
-.stats-bar{gap:.4rem}
-.stat-card{padding:.4rem .6rem;min-width:65px}
-.stat-card .num{font-size:1.1rem}
-.frow{grid-template-columns:1fr 1fr}
-.table-view{display:none}
-.card-view{display:table-row-group}
-.card-row{display:block;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:.8rem;margin-bottom:.6rem;position:relative}
-.card-row .cr-prod{font-size:1rem;font-weight:600;margin-bottom:.3rem;padding-right:2.2rem}
-.card-row .cr-dates{font-size:.75rem;color:var(--muted);margin-bottom:.2rem}
-.card-row .cr-dates span{display:inline-block;margin-right:.6rem}
-.card-row .cr-price{font-size:.9rem;font-weight:600}
-.card-row .cr-cmt{margin:.3rem 0}
-.card-row .cr-actions{position:absolute;top:.6rem;right:.6rem;display:flex;gap:.3rem}
-.card-row .cr-cbox{display:inline-flex;align-items:center;gap:.4rem;font-size:.8rem}
-.card-row .cr-cbox input[type=checkbox]{accent-color:var(--accent);transform:scale(1.1)}
-.pagination button{padding:.3rem .6rem;font-size:.75rem}
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f0f2f5;--bg2:#fff;--bg3:#e8eaed;
+  --text:#1a1a2e;--text2:#6b7280;
+  --border:#e5e7eb;
+  --primary:#4f46e5;--primary-h:#4338ca;
+  --green:#10b981;--red:#ef4444;--yellow:#f59e0b;--blue:#3b82f6;
+  --shadow:0 1px 3px rgba(0,0,0,.1),0 1px 2px rgba(0,0,0,.06);
+  --shadow-md:0 4px 6px rgba(0,0,0,.07),0 2px 4px rgba(0,0,0,.06);
+  --radius:8px;
 }
-@media(max-width:480px){
-.frow{grid-template-columns:1fr}
+body.dark{
+  --bg:#111827;--bg2:#1f2937;--bg3:#374151;
+  --text:#f9fafb;--text2:#9ca3af;
+  --border:#374151;
+  --shadow:0 1px 3px rgba(0,0,0,.4);
+  --shadow-md:0 4px 6px rgba(0,0,0,.3);
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;transition:background .2s,color .2s}
+a{color:var(--primary)}
+
+/* HEADER */
+.header{background:var(--bg2);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;box-shadow:var(--shadow);position:sticky;top:0;z-index:100}
+.header h1{font-size:1.2rem;font-weight:700;color:var(--primary)}
+.header-actions{display:flex;gap:8px;align-items:center}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:var(--radius);border:none;cursor:pointer;font-size:.875rem;font-weight:500;transition:all .15s}
+.btn-primary{background:var(--primary);color:#fff}.btn-primary:hover{background:var(--primary-h)}
+.btn-ghost{background:var(--bg3);color:var(--text)}.btn-ghost:hover{opacity:.8}
+.btn-sm{padding:4px 10px;font-size:.8rem}
+.btn-icon{padding:7px 10px;border-radius:50%}
+.btn-danger{background:var(--red);color:#fff}.btn-danger:hover{opacity:.85}
+.btn-blue{background:var(--blue);color:#fff}.btn-blue:hover{opacity:.85}
+
+/* TABS */
+.tabs-nav{display:flex;background:var(--bg2);border-bottom:1px solid var(--border);padding:0 24px;flex-wrap:wrap}
+.tab-btn{padding:14px 20px;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;font-size:.9rem;font-weight:500;color:var(--text2);transition:all .15s;white-space:nowrap}
+.tab-btn .tab-name{display:inline;min-width:30px}
+.tab-btn .tab-name[contenteditable]{outline:none;border-bottom:1px dashed var(--text2)}
+.tab-btn.active .tab-name[contenteditable]{border-bottom-color:var(--primary)}
+.tab-btn.active{color:var(--primary);border-bottom-color:var(--primary)}
+.tab-content{display:none;padding:24px;max-width:1400px;margin:0 auto}
+.tab-content.active{display:block}
+
+/* CARDS */
+.card{background:var(--bg2);border-radius:var(--radius);box-shadow:var(--shadow-md);padding:20px;margin-bottom:20px}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px}
+.card-title{font-size:1rem;font-weight:600}
+
+/* TABLES */
+table{width:100%;border-collapse:collapse}
+th{text-align:left;padding:10px 12px;font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text2);border-bottom:1px solid var(--border);background:var(--bg3)}
+td{padding:9px 12px;border-bottom:1px solid var(--border);font-size:.875rem;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:var(--bg3)}
+tfoot td{font-weight:700;background:var(--bg3);border-top:2px solid var(--border)}
+
+/* INPUTS */
+.input{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:7px 10px;color:var(--text);font-size:.875rem;width:100%;transition:border .15s}
+.input:focus{outline:none;border-color:var(--primary)}
+.input-sm{padding:4px 8px;font-size:.8rem}
+.input-xs{padding:2px 5px;font-size:.72rem;width:70px}
+
+/* AMOUNTS */
+.pos{color:var(--green);font-weight:600}
+.neg{color:var(--red);font-weight:600}
+.zero{color:var(--text2)}
+.pr{color:var(--blue);font-weight:600}
+
+/* SUMMARY BAR */
+.summary-bar{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px}
+.sc{flex:1;min-width:130px;background:var(--bg2);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow);border-left:3px solid var(--primary)}
+.sc.g{border-left-color:var(--green)}.sc.r{border-left-color:var(--red)}.sc.y{border-left-color:var(--yellow)}.sc.b{border-left-color:var(--blue)}
+.sc-label{font-size:.72rem;color:var(--text2);margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em}
+.sc-val{font-size:1.35rem;font-weight:700}
+
+/* SALARY CONFIG */
+.salary-config{display:flex;gap:14px;flex-wrap:wrap;align-items:center;background:var(--bg2);padding:14px 20px;border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:20px}
+.sf{display:flex;align-items:center;gap:8px}
+.sf label{font-weight:500;color:var(--text2);white-space:nowrap;font-size:.875rem}
+.sf input{width:100px}
+
+/* BADGE */
+.badge{display:inline-block;padding:2px 8px;border-radius:12px;font-size:.72rem;font-weight:600;cursor:pointer;margin:1px;max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:bottom}
+.bg{background:#d1fae5;color:#065f46}.br{background:#fee2e2;color:#991b1b}.bb{background:#dbeafe;color:#1d4ed8}.by{background:#fef3c7;color:#92400e}.bp{background:#e0e7ff;color:#3730a3}
+body.dark .bg{background:#064e3b;color:#6ee7b7}
+body.dark .br{background:#7f1d1d;color:#fca5a5}
+body.dark .bb{background:#1e3a5f;color:#93c5fd}
+body.dark .by{background:#78350f;color:#fde68a}
+body.dark .bp{background:#312e81;color:#c7d2fe}
+
+/* PROJECTION TABLE */
+.proj-wrap{overflow-x:auto;border-radius:var(--radius)}
+.proj-table th,.proj-table td{padding:5px 7px;white-space:nowrap;font-size:.78rem}
+.proj-table th{font-size:.68rem}
+.proj-table td input{width:76px;font-size:.76rem;padding:3px 6px}
+.proj-table td input.input-xs{width:62px;font-size:.72rem;padding:2px 5px}
+.sal-cell{display:flex;flex-direction:column;gap:2px}
+.sal-row{display:flex;align-items:center;gap:3px}
+.sal-label{font-size:.62rem;color:var(--text2);width:18px;flex-shrink:0}
+.sal-label.caf{color:var(--blue)}
+.month-cell{font-weight:600;min-width:72px}
+.override-input{border-color:var(--yellow) !important}
+.total-row td{font-weight:700;background:var(--bg3);border-top:2px solid var(--border)}
+.sim-badge{display:inline-block;background:#e0e7ff;color:#3730a3;font-size:.7rem;padding:3px 10px;border-radius:20px;font-weight:600;margin-left:10px;vertical-align:middle}
+body.dark .sim-badge{background:#312e81;color:#c7d2fe}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1000;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:var(--bg2);border-radius:var(--radius);padding:24px;width:90%;max-width:420px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.modal-title{font-size:1.05rem;font-weight:700;margin-bottom:16px}
+.form-row{margin-bottom:10px}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+
+/* DEPENSES VIDE */
+.empty-row td{text-align:center;color:var(--text2);padding:24px;font-style:italic}
+
+/* CONFIG SCREEN */
+.config-screen{display:none;position:fixed;inset:0;background:var(--bg);z-index:2000;align-items:center;justify-content:center}
+.config-screen.open{display:flex}
+.config-box{background:var(--bg2);border-radius:var(--radius);padding:32px;width:90%;max-width:440px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.config-title{font-size:1.2rem;font-weight:700;margin-bottom:6px;color:var(--primary)}
+.config-subtitle{font-size:.84rem;color:var(--text2);margin-bottom:22px;line-height:1.5}
+.config-label{font-size:.8rem;font-weight:600;color:var(--text2);margin-bottom:4px;display:block}
+
+/* SYNC INDICATOR */
+#syncStatus{font-size:.8rem;font-weight:500;white-space:nowrap}
+#syncStatus.ok{color:var(--green)}
+#syncStatus.err{color:var(--red)}
+#syncStatus.pending{color:var(--text2)}
+
+@media(max-width:600px){
+  html{font-size:14px}
+
+  /* HEADER */
+  .header{padding:8px 12px;flex-wrap:wrap;gap:6px}
+  .header h1{font-size:1rem}
+  .header-actions{gap:5px;flex-wrap:wrap}
+  .header-actions .btn{padding:5px 10px;font-size:.78rem}
+  #syncStatus{font-size:.72rem}
+
+  /* TABS */
+  .tabs-nav{padding:0 8px;overflow-x:auto;flex-wrap:nowrap;-webkit-overflow-scrolling:touch;gap:0}
+  .tabs-nav::-webkit-scrollbar{display:none}
+  .tab-btn{padding:10px 10px;font-size:.82rem;flex-shrink:0}
+
+  /* CONTENT */
+  .tab-content{padding:10px}
+  .card{padding:12px;margin-bottom:12px}
+  .card-header{gap:6px}
+  .card-title{font-size:.9rem}
+
+  /* SUMMARY BAR */
+  .summary-bar{gap:8px}
+  .sc{min-width:calc(50% - 8px);flex:1 1 calc(50% - 8px);padding:10px 12px}
+  .sc-label{font-size:.65rem}
+  .sc-val{font-size:1.1rem}
+
+  /* SALARY CONFIG */
+  .salary-config{padding:10px 12px;gap:8px}
+  .sf{width:100%}
+  .sf label{font-size:.78rem;min-width:50px}
+  .sf input{width:80px;flex:1;max-width:120px}
+  .salary-config>span:first-child{width:100%}
+  .salary-config>span:last-of-type{width:100%;font-size:.7rem}
+
+  /* TABLES (charges & depenses) */
+  th{padding:6px 8px;font-size:.68rem}
+  td{padding:6px 8px;font-size:.8rem}
+  .input-sm{padding:3px 6px;font-size:.78rem}
+  .input{padding:5px 8px;font-size:.82rem}
+
+  /* BUDGET INPUT in card */
+  .card-header .input#budgetVieInput{width:90px !important}
+  .card-header label{font-size:.78rem !important}
+
+  /* BADGES */
+  .badge{max-width:80px;font-size:.65rem;padding:1px 6px}
+
+  /* MODAL - full screen */
+  .modal{width:100%;max-width:100%;height:100%;border-radius:0;padding:20px;display:flex;flex-direction:column;justify-content:center}
+  .modal-overlay{align-items:flex-end}
+  .modal-overlay.open{align-items:center}
+  .modal-title{font-size:1rem}
+  .form-row input,.form-row select{font-size:1rem;padding:10px 10px}
+
+  /* PROJECTION TABLE */
+  .proj-table th,.proj-table td{padding:3px 4px;font-size:.68rem}
+  .proj-table th{font-size:.6rem}
+  .proj-table td input{width:56px;font-size:.68rem;padding:2px 4px}
+  .proj-table td input.input-xs{width:46px;font-size:.65rem;padding:1px 3px}
+  .sal-label{font-size:.55rem;width:14px}
+  .month-cell{min-width:52px;font-size:.68rem}
+  .sal-cell{gap:1px}
+  .sal-row{gap:2px}
+
+  /* COMPARISON TABLE */
+  #simComparison td,#simComparison th{padding:5px 6px;font-size:.75rem}
+
+  /* CONFIG SCREEN */
+  .config-box{padding:24px 20px}
+  .config-title{font-size:1.1rem}
+  .config-subtitle{font-size:.78rem}
+
+  /* SIM BUTTONS */
+  .tab-content#tab-simulation>div:first-child{gap:8px}
+  .tab-content#tab-simulation>div:first-child span:first-child{width:100%}
+}
+
+@media(max-width:400px){
+  .sc{min-width:100%;flex:1 1 100%}
+  .header-actions .btn{font-size:.72rem;padding:4px 8px}
+  .header-actions .btn-icon{padding:4px 8px}
+  .proj-table td input{width:44px;font-size:.62rem}
+  .proj-table td input.input-xs{width:38px}
+  .tab-btn{padding:8px 8px;font-size:.76rem}
 }
 </style>
 </head>
 <body>
-<div class="container">
 
-<header>
-<h1>📋 Viewer</h1>
-<p class="subtitle">Suivi des produits Amazon — commentaires et remboursements</p>
-<div class="stats-bar">
-<div class="stat-card"><div class="num" id="nTotal">0</div><div class="lbl">Produits</div></div>
-<div class="stat-card"><div class="num" id="nToday">0</div><div class="lbl">À commenter</div></div>
-<div class="stat-card"><div class="num" id="nDone">0</div><div class="lbl">Commentés ✅</div></div>
-<div class="stat-card"><div class="num" id="nWait">0</div><div class="lbl">En attente</div></div>
-<div class="stat-card"><div class="num" id="nRefundDue">0€</div><div class="lbl">Remb. dû</div></div>
-<div class="stat-card"><div class="num" id="nRefundPaid">0€</div><div class="lbl">Remb. reçu</div></div>
-</div>
-<div class="sync-wrap"><span id="syncTag" class="tag tag-sync">⏳ Connexion...</span></div>
-</header>
-
-<button class="btn-pri" onclick="tf()">＋ Ajouter un produit</button>
-
-<div class="form-box" id="formBox">
-<div class="frow">
-<div class="fg"><label>Produit</label><input type="text" id="inpP" placeholder="Ex: Écouteurs Sony" autocomplete="off"></div>
-<div class="fg"><label>💰 Prix (€)</label><input type="number" id="inpPrice" placeholder="0.00" step="0.01" min="0"></div>
-<div class="fg"><label>📦 Date commande</label><input type="date" id="inpO"></div>
-<div class="fg"><label>📬 Date réception</label><input type="date" id="inpR"></div>
-<div class="fg"><label>💸 Remboursement (€)</label><input type="number" id="inpRefund" placeholder="0.00" step="0.01" min="0"></div>
-<div class="fg"><label>💳 PayPal</label><select id="inpPP"><option value="">—</option><option value="yes">✅ Avec frais</option><option value="no">❌ Sans frais</option></select></div>
-<div class="fg"><label>🗓️ Date commentaire</label><input type="date" id="inpCD"></div>
-<div class="fg"><div class="fg-check"><input type="checkbox" id="inpCP"><label for="inpCP">✅ Commentaire en ligne</label></div></div>
-</div>
-<div class="fa">
-<button class="btn-pri" onclick="add()">💾 Enregistrer</button>
-<button class="btn-sec" onclick="tf()">Annuler</button>
-</div>
+<!-- HEADER -->
+<div class="header">
+  <h1>💰 Budget Manager</h1>
+  <div class="header-actions">
+    <button class="btn btn-ghost btn-sm" onclick="exportData()">⬇ Export</button>
+    <label class="btn btn-ghost btn-sm" style="cursor:pointer">
+      ⬆ Import
+      <input type="file" accept=".json" style="display:none" onchange="importData(event)">
+    </label>
+    <button class="btn btn-ghost btn-icon" id="darkBtn" onclick="toggleDark()" title="Basculer dark/light">🌙</button>
+    <span id="syncStatus"></span>
+    <button class="btn btn-ghost btn-sm" onclick="showIdPrompt()" title="Changer de budget">🔄 Budget</button>
+  </div>
 </div>
 
-<div class="tw" style="margin-top:1rem">
-<table>
-<thead><tr>
-<th>Produit</th><th>💰 Prix</th><th>📦 Cde</th><th>📬 Reçu</th><th>💸 Remb.</th><th>💳 PP</th><th>🗓️ Commentaire</th><th>✅ En ligne</th><th>💸 Reçu?</th><th>Statut</th><th style="text-align:center">Act.</th>
-</tr></thead>
-<tbody id="tbl" class="table-view"></tbody>
-<tbody id="tblCards" class="card-view"></tbody>
-</table>
+<!-- TABS NAV -->
+<div class="tabs-nav" id="tabsNav">
+  <button class="tab-btn active" data-tab="mensuel" onclick="switchTab('mensuel')">📊 Budget mensuel</button>
+  <button class="tab-btn" data-tab="projection" onclick="switchTab('projection')">
+    📈 <span class="tab-name" id="tabNameProjection" contenteditable="true" onblur="renameTab('projection',this.textContent)" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur()}">2026</span>
+  </button>
+  <button class="tab-btn" data-tab="simulation" onclick="switchTab('simulation')">
+    🧪 <span class="tab-name" id="tabNameSimulation" contenteditable="true" onblur="renameTab('simulation',this.textContent)" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur()}">Simulation</span>
+  </button>
 </div>
 
-<div class="summary" id="summaryBox">
-<div class="summary-item"><div class="val" id="sInvest">0€</div><div class="lbl">💰 Investi</div></div>
-<div class="summary-item"><div class="val" id="sRefundDue">0€</div><div class="lbl">⏳ Remb. dû</div></div>
-<div class="summary-item"><div class="val" id="sRefundPaid">0€</div><div class="lbl">✅ Remb. reçu</div></div>
-<div class="summary-item"><div class="val" id="sNet">0€</div><div class="lbl">📊 Net (reçu)</div></div>
-<div class="summary-item"><div class="val" id="sProfit">0%</div><div class="lbl">🎯 Taux dû</div></div>
-<div class="summary-item"><div class="val" id="sCmtPct">0%</div><div class="lbl">✅ Commenté</div></div>
+<!-- ====== TAB 1 ====== -->
+<div class="tab-content active" id="tab-mensuel">
+
+  <div class="summary-bar" id="summary1"></div>
+
+  <!-- Charges fixes -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Charges fixes mensuelles</span>
+      <button class="btn btn-primary btn-sm" onclick="addCharge()">+ Ajouter</button>
+    </div>
+    <table>
+      <thead><tr><th>Désignation</th><th>Montant (€)</th><th></th></tr></thead>
+      <tbody id="chargesTbody"></tbody>
+      <tfoot><tr>
+        <td>Total charges fixes</td>
+        <td id="totalChargesTxt"></td>
+        <td></td>
+      </tr></tfoot>
+    </table>
+  </div>
+
+  <!-- Vie courante -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Dépenses — Vie courante</span>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <label style="font-size:.85rem;color:var(--text2)">Budget alloué :</label>
+        <input type="number" class="input" style="width:110px" id="budgetVieInput"
+          min="0" onchange="state.budgetVie=+this.value;save();renderSummary1();renderProjection()">
+        <button class="btn btn-primary btn-sm" onclick="openAddDepense()">+ Dépense</button>
+      </div>
+    </div>
+    <table>
+      <thead><tr><th>Date</th><th>Catégorie</th><th>Note</th><th>Montant (€)</th><th></th></tr></thead>
+      <tbody id="depensesTbody"></tbody>
+      <tfoot><tr>
+        <td colspan="3">Total dépensé ce mois</td>
+        <td id="totalDepTxt"></td>
+        <td></td>
+      </tr></tfoot>
+    </table>
+  </div>
 </div>
 
-<div class="pagination" id="pagBox">
-<button id="pagPrev" onclick="pag(-1)">◀ Préc.</button>
-<span class="pi" id="pagInfo">Page 1 / 1</span>
-<button id="pagNext" onclick="pag(1)">Suiv. ▶</button>
+<!-- ====== TAB 2 ====== -->
+<div class="tab-content" id="tab-projection">
+
+  <div class="salary-config">
+    <span style="font-weight:600;font-size:.9rem">Salaires de base :</span>
+    <div class="sf">
+      <label>Mr</label>
+      <input type="number" class="input input-sm" id="salMrInput" min="0"
+        onchange="state.salaireMr=+this.value;save();renderProjection()">
+      <span style="font-size:.75rem;color:var(--text2)">€/mois</span>
+    </div>
+    <div class="sf">
+      <label>Mme</label>
+      <input type="number" class="input input-sm" id="salMmeInput" min="0"
+        onchange="state.salaireMme=+this.value;save();renderProjection()">
+      <span style="font-size:.75rem;color:var(--text2)">€/mois</span>
+    </div>
+    <div class="sf">
+      <label style="color:var(--blue);font-weight:600">CAF</label>
+      <input type="number" class="input input-sm" id="cafInput" min="0"
+        onchange="state.caf=+this.value;save();renderProjection();renderSummary1()">
+      <span style="font-size:.75rem;color:var(--text2)">€/mois</span>
+    </div>
+    <span style="font-size:.78rem;color:var(--text2)">— modifiables mois par mois ci-dessous</span>
+    <div class="sf" style="margin-left:auto">
+      <label style="color:var(--primary);font-weight:600">Épargne de départ</label>
+      <input type="number" class="input input-sm" id="epargneDepInput" min="0"
+        onchange="state.epargneDepart=+this.value;save();renderProjection()">
+      <span style="font-size:.75rem;color:var(--text2)">€</span>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-ghost btn-sm" onclick="openAddPrime()">+ Prime / Extra</button>
+      <button class="btn btn-ghost btn-sm" onclick="openAddDepPonct()">+ Dépense ponctuelle</button>
+    </div>
+  </div>
+
+  <!-- Projection table -->
+  <div class="card" style="padding:0;overflow:hidden">
+    <div class="proj-wrap">
+      <table class="proj-table">
+        <thead><tr>
+          <th>Mois</th>
+          <th>Mr / Mme / CAF</th>
+          <th>Primes</th>
+          <th>Entrées</th>
+          <th>Charges</th>
+          <th>Vie cour.</th>
+          <th>Dép. exc.</th>
+          <th>Sorties</th>
+          <th>Solde</th>
+          <th>Épargne</th>
+        </tr></thead>
+        <tbody id="projTbody"></tbody>
+        <tfoot id="projTfoot"></tfoot>
+      </table>
+    </div>
+  </div>
 </div>
 
-<div class="ft">☁️ Supabase · <span id="updDt"></span></div>
+<!-- ====== TAB 3 ====== -->
+<div class="tab-content" id="tab-simulation">
+
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap">
+    <span style="font-weight:600;font-size:.95rem">🧪 Paramètres de simulation</span>
+    <button class="btn btn-blue btn-sm" onclick="resetSimulation()">🔁 Copier depuis le budget réel</button>
+    <span style="font-size:.78rem;color:var(--text2)">— Les modifications n'affectent pas le budget réel</span>
+  </div>
+
+  <div class="salary-config">
+    <span style="font-weight:600;font-size:.9rem">Scénario :</span>
+    <div class="sf">
+      <label>Mr</label>
+      <input type="number" class="input input-sm" id="simSalMrInput" min="0"
+        onchange="state.simulation.salaireMr=+this.value;save();renderSimulation()">
+      <span style="font-size:.75rem;color:var(--text2)">€/mois</span>
+    </div>
+    <div class="sf">
+      <label>Mme</label>
+      <input type="number" class="input input-sm" id="simSalMmeInput" min="0"
+        onchange="state.simulation.salaireMme=+this.value;save();renderSimulation()">
+      <span style="font-size:.75rem;color:var(--text2)">€/mois</span>
+    </div>
+    <div class="sf">
+      <label style="color:var(--blue);font-weight:600">CAF</label>
+      <input type="number" class="input input-sm" id="simCafInput" min="0"
+        onchange="state.simulation.caf=+this.value;save();renderSimulation()">
+      <span style="font-size:.75rem;color:var(--text2)">€/mois</span>
+    </div>
+    <div class="sf">
+      <label>Budget vie</label>
+      <input type="number" class="input input-sm" id="simBudgetVieInput" min="0"
+        onchange="state.simulation.budgetVie=+this.value;save();renderSimulation()">
+      <span style="font-size:.75rem;color:var(--text2)">€/mois</span>
+    </div>
+    <div class="sf">
+      <label style="color:var(--primary);font-weight:600">Épargne départ</label>
+      <input type="number" class="input input-sm" id="simEpargneInput" min="0"
+        onchange="state.simulation.epargneDepart=+this.value;save();renderSimulation()">
+      <span style="font-size:.75rem;color:var(--text2)">€</span>
+    </div>
+  </div>
+
+  <!-- Simulation projection table -->
+  <div class="card" style="padding:0;overflow:hidden">
+    <div class="proj-wrap">
+      <table class="proj-table">
+        <thead><tr>
+          <th>Mois</th>
+          <th>Mr / Mme / CAF</th>
+          <th>Primes</th>
+          <th>Entrées</th>
+          <th>Charges</th>
+          <th>Vie cour.</th>
+          <th>Dép. exc.</th>
+          <th>Sorties</th>
+          <th>Solde</th>
+          <th>Épargne</th>
+        </tr></thead>
+        <tbody id="simProjTbody"></tbody>
+        <tfoot id="simProjTfoot"></tfoot>
+      </table>
+    </div>
+  </div>
+
+  <div class="card" id="simComparison">
+    <div class="card-header">
+      <span class="card-title">📊 Comparaison annuelle</span>
+    </div>
+    <table>
+      <thead><tr><th>Indicateur</th><th>Budget réel</th><th>Simulation</th><th>Écart</th></tr></thead>
+      <tbody id="comparisonTbody"></tbody>
+    </table>
+  </div>
 </div>
+
+<!-- MODAL: dépense vie courante -->
+<div class="modal-overlay" id="modalDep">
+  <div class="modal">
+    <div class="modal-title">Nouvelle dépense</div>
+    <div class="form-row"><input type="date" class="input" id="depDate"></div>
+    <div class="form-row"><input type="text" class="input" id="depCat" placeholder="Catégorie (ex: Alimentation)"></div>
+    <div class="form-row"><input type="text" class="input" id="depNote" placeholder="Note (optionnel)"></div>
+    <div class="form-row"><input type="number" class="input" id="depMontant" placeholder="Montant (€)" min="0" step="0.01"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modalDep')">Annuler</button>
+      <button class="btn btn-primary" onclick="saveDep()">Ajouter</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: prime -->
+<div class="modal-overlay" id="modalPrime">
+  <div class="modal">
+    <div class="modal-title" id="modalPrimeTitle">Ajouter une prime</div>
+    <div class="form-row">
+      <select class="input" id="primeMois">
+        <option value="0">Janvier</option><option value="1">Février</option>
+        <option value="2">Mars</option><option value="3">Avril</option>
+        <option value="4">Mai</option><option value="5">Juin</option>
+        <option value="6">Juillet</option><option value="7">Août</option>
+        <option value="8">Septembre</option><option value="9">Octobre</option>
+        <option value="10">Novembre</option><option value="11">Décembre</option>
+      </select>
+    </div>
+    <div class="form-row"><input type="text" class="input" id="primeNom" placeholder="Nom (ex: Bonus)"></div>
+    <div class="form-row"><input type="number" class="input" id="primeMontant" placeholder="Montant (€)" min="0"></div>
+    <div class="modal-actions">
+      <button class="btn btn-danger btn-sm" id="btnDelPrime" style="display:none;margin-right:auto" onclick="deletePrime()">Supprimer</button>
+      <button class="btn btn-ghost" onclick="closeModal('modalPrime')">Annuler</button>
+      <button class="btn btn-primary" onclick="savePrime()">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: dépense ponctuelle -->
+<div class="modal-overlay" id="modalPonct">
+  <div class="modal">
+    <div class="modal-title" id="modalPonctTitle">Ajouter une dépense ponctuelle</div>
+    <div class="form-row">
+      <select class="input" id="ponctMois">
+        <option value="0">Janvier</option><option value="1">Février</option>
+        <option value="2">Mars</option><option value="3">Avril</option>
+        <option value="4">Mai</option><option value="5">Juin</option>
+        <option value="6">Juillet</option><option value="7">Août</option>
+        <option value="8">Septembre</option><option value="9">Octobre</option>
+        <option value="10">Novembre</option><option value="11">Décembre</option>
+      </select>
+    </div>
+    <div class="form-row"><input type="text" class="input" id="ponctNom" placeholder="Nom (ex: Taxe foncière)"></div>
+    <div class="form-row"><input type="number" class="input" id="ponctMontant" placeholder="Montant (€)" min="0"></div>
+    <div class="modal-actions">
+      <button class="btn btn-danger btn-sm" id="btnDelPonct" style="display:none;margin-right:auto" onclick="deletePonct()">Supprimer</button>
+      <button class="btn btn-ghost" onclick="closeModal('modalPonct')">Annuler</button>
+      <button class="btn btn-primary" onclick="savePonct()">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ID PROMPT -->
+<div class="config-screen" id="idPromptScreen">
+  <div class="config-box">
+    <div class="config-title">💼 Mon Budget</div>
+    <div class="config-subtitle">Choisis un identifiant pour ton budget (ex: "famille", "perso", "projet").<br>
+      Les données seront sauvegardées sur le cloud — accessibles depuis n'importe quel navigateur.</div>
+    <div class="form-row">
+      <label class="config-label">Identifiant du budget</label>
+      <input type="text" class="input" id="budgetIdInput" placeholder="ex: famille1" autocomplete="off">
+    </div>
+    <div id="idError" style="color:var(--red);font-size:.85rem;margin:8px 0;display:none"></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px">
+      <button class="btn btn-primary" id="idConnectBtn" onclick="connectBudget()">C'est parti</button>
+    </div>
+  </div>
+</div>
+
 <script>
+
 const SB_URL='https://supabase.sagetech.vip';
 const SB_KEY=atob('ZXlKMGVYQWlPaUpLVjFRaUxDSmhiR2NpT2lKSVV6STFOaUo5LmV5SnBjM01pT2lKemRYQmhZbUZ6WlNJc0ltbGhkQ0k2TVRjM09EYzROVEl3TUN3aVpYaHdJam8wT1RNME5EVTRPREF3TENKeWIyeGxJam9pYzJWeWRtbGpaVjl5YjJ4bEluMC5pRGFFZmU0cEhNemtlZmY5Q3U4Yy1ZandEQWVzNU5ZNzVvUEQxb1ZtdUlr');
 const FILE='budget-data/product-viewer.json';
@@ -170,7 +528,7 @@ async function api(m,b){try{const u=SB_URL+'/storage/v1/object/'+FILE;const h={'
 
 async function ld(){try{st('⏳ Chargement...','tag-sync');_data=await api();_data=Array.isArray(_data)?_data:[];_page=1;render();st('☁️ Synchronisé','tag-ok')}catch(e){st('❌ '+e.message,'tag-err');_data=[];render()}}
 
-async function add(){const p=document.getElementById('inpP').value.trim();const pr=parseFloat(document.getElementById('inpPrice').value)||0;const o=document.getElementById('inpO').value;const r=document.getElementById('inpR').value||'';const rf=parseFloat(document.getElementById('inpRefund').value)||0;const pp=document.getElementById('inpPP').value;const cd=document.getElementById('inpCD').value;const cp=document.getElementById('inpCP').checked;if(!p||!o||!cd){alert('❌ Produit, date commande et date commentaire requis');return}try{st('⏳ Enregistrement...','tag-sync');let cur=[];try{cur=await api();cur=Array.isArray(cur)?cur:[]}catch(e){}cur.push({id:Date.now(),product:p,price:pr,ordered:o,received:r,refund:rf,paypal:pp,commentDate:cd,commentPosted:cp,refundPaid:false});await api('PUT',cur);document.getElementById('inpP').value='';document.getElementById('inpPrice').value='';document.getElementById('inpO').value='';document.getElementById('inpR').value='';document.getElementById('inpRefund').value='';document.getElementById('inpPP').value='';document.getElementById('inpCD').value='';document.getElementById('inpCP').checked=false;tf();await ld();st('✅ Enregistré','tag-ok')}catch(e){st('❌ '+e.message,'tag-err');alert('Erreur: '+e.message)}}
+async function add(){const p=document.getElementById('inpP').value.trim();const pr=parseFloat(document.getElementById('inpPrice').value)||0;const o=document.getElementById('inpO').value;const r=document.getElementById('inpR').value||'';const rf=parseFloat(document.getElementById('inpRefund').value)||0;const pp=document.getElementById('inpPP').value;const cd=document.getElementById('inpCD').value;const cp=document.getElementById('inpCP').checked;if(!p||!o||!cd){alert('❌ Produit, date commande et date commentaire requis');return}try{st('⏳ Enregistrement...','tag-sync');let cur=[];try{cur=await api();cur=Array.isArray(cur)?cur:[]}catch(e){}cur.push({id:Date.now(),product:p,price:pr,ordered:o,received:r,refund:rf,paypal:pp,commentDate:cd,commentPosted:cp,refundPaid:false});await api('PUT',cur);['inpP','inpPrice','inpO','inpR','inpRefund','inpPP','inpCD'].forEach(i=>document.getElementById(i).value='');document.getElementById('inpCP').checked=false;tf();await ld();st('✅ Enregistré','tag-ok')}catch(e){st('❌ '+e.message,'tag-err');alert('Erreur: '+e.message)}}
 
 async function del(id){if(!confirm('Supprimer ce produit ?'))return;try{st('⏳ Suppression...','tag-sync');let cur=await api();cur=Array.isArray(cur)?cur:[];cur=cur.filter(x=>x.id!==id);await api('PUT',cur);await ld();st('✅ Supprimé','tag-ok')}catch(e){st('❌ '+e.message,'tag-err')}}
 
@@ -209,10 +567,9 @@ if(_page>totalPages)_page=totalPages;
 const start=(_page-1)*PER_PAGE;
 const pg=items.slice(start,start+PER_PAGE);
 const tb=document.getElementById('tbl');
-tb.innerHTML=pg.map(x=>{const b=getBadge(x);const ckCmt=x.commentPosted?'checked':'';const ckRef=x.refundPaid?'checked':'';return '<tr><td><strong>'+x.product+'</strong></td><td>'+euro(x.price)+'</td><td>'+fmt(x.ordered)+'</td><td>'+fmt(x.received)+'</td><td>'+euro(x.refund)+'</td><td>'+(x.paypal==='yes'?'<span class="pp-tag pp-yes">✅</span>':x.paypal==='no'?'<span class="pp-tag pp-no">❌</span>':'—')+'</td><td>'+fmt(x.commentDate)+'</td><td style="text-align:center"><input type="checkbox" '+ckCmt+' onchange="toggleField('+x.id+',\'commentPosted\')"></td><td style="text-align:center"><input type="checkbox" '+ckRef+' onchange="toggleField('+x.id+',\'refundPaid\')"></td><td><span class="badge '+b.c+'">'+b.l+'</span></td><td style="text-align:center"><button class="btn btn-del" onclick="del('+x.id+')">🗑️</button></td></tr>'}).join('');
-if(!pg.length)tb.innerHTML='<tr><td colspan="11"><div class="empty"><div class="i">📦</div>Aucun produit.</div></td></tr>';
+tb.innerHTML=pg.map(x=>{const b=getBadge(x);return `<tr><td><strong>${x.product}</strong></td><td>${euro(x.price)}</td><td>${fmt(x.ordered)}</td><td>${fmt(x.received)}</td><td>${euro(x.refund)}</td><td>${x.paypal==='yes'?'<span class="pp-tag pp-yes">✅</span>':x.paypal==='no'?'<span class="pp-tag pp-no">❌</span>':'—'}</td><td>${fmt(x.commentDate)}</td><td style="text-align:center"><input type="checkbox" ${x.commentPosted?'checked':''} onchange="toggleField(${x.id},'commentPosted')"></td><td style="text-align:center"><input type="checkbox" ${x.refundPaid?'checked':''} onchange="toggleField(${x.id},'refundPaid')"></td><td><span class="badge ${b.c}">${b.l}</span></td><td style="text-align:center"><button class="btn btn-del" onclick="del(${x.id})">🗑️</button></td></tr>`}).join('')||'<tr><td colspan="11"><div class="empty"><div class="i">📦</div>Aucun produit.</div></td></tr>';
 const tc=document.getElementById('tblCards');
-tc.innerHTML=pg.map(x=>{const b=getBadge(x);const ckCmt=x.commentPosted?'checked':'';const ckRef=x.refundPaid?'checked':'';return '<tr class="card-row"><td colspan="11"><div class="cr-prod">'+x.product+' <span class="price-neutral">'+euro(x.price)+'</span></div><div class="cr-dates"><span>📦 '+fmt(x.ordered)+'</span><span>📬 '+fmt(x.received)+'</span></div><div class="cr-dates"><span>🗓️ '+fmt(x.commentDate)+'</span><span>'+(x.paypal==='yes'?'✅ Frais':x.paypal==='no'?'❌ Sans':'—')+'</span></div><div class="cr-dates"><span>💸 '+euro(x.refund)+' dû</span><span>✅ Reçu: '+(x.refundPaid?'Oui':'Non')+'</span></div><div class="cr-cmt"><span class="badge '+b.c+'">'+b.l+'</span></div><div class="cr-cbox"><input type="checkbox" '+ckCmt+' onchange="toggleField('+x.id+',\'commentPosted\')"> <span>Commenté en ligne</span></div><div class="cr-cbox"><input type="checkbox" '+ckRef+' onchange="toggleField('+x.id+',\'refundPaid\')"> <span>Remb. reçu</span></div><div class="cr-actions"><button class="btn btn-del" onclick="del('+x.id+')">🗑️</button></div></td></tr>'}).join('');
+tc.innerHTML=pg.map(x=>{const b=getBadge(x);return `<tr class="card-row"><td colspan="11"><div class="cr-prod">${x.product} <span class="price-neutral">${euro(x.price)}</span></div><div class="cr-dates"><span>📦 ${fmt(x.ordered)}</span><span>📬 ${fmt(x.received)}</span></div><div class="cr-dates"><span>🗓️ ${fmt(x.commentDate)}</span><span>${x.paypal==='yes'?'✅ Frais':x.paypal==='no'?'❌ Sans':'—'}</span></div><div class="cr-dates"><span>💸 ${euro(x.refund)} dû</span><span>✅ Reçu: ${x.refundPaid?'Oui':'Non'}</span></div><div class="cr-cmt"><span class="badge ${b.c}">${b.l}</span></div><div class="cr-cbox"><input type="checkbox" ${x.commentPosted?'checked':''} onchange="toggleField(${x.id},'commentPosted')"> <span>Commenté en ligne</span></div><div class="cr-cbox"><input type="checkbox" ${x.refundPaid?'checked':''} onchange="toggleField(${x.id},'refundPaid')"> <span>Remb. reçu</span></div><div class="cr-actions"><button class="btn btn-del" onclick="del(${x.id})">🗑️</button></div></td></tr>`}).join('');
 document.getElementById('pagInfo').textContent='Page '+_page+' / '+totalPages;
 document.getElementById('pagPrev').disabled=_page<=1;
 document.getElementById('pagNext').disabled=_page>=totalPages;
