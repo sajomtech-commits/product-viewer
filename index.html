@@ -357,8 +357,8 @@ function renderCards(fl){
   }
 }
 
-// ===== Bootstrap: attach listeners =====
-document.addEventListener('DOMContentLoaded',function(){
+// ===== Bootstrap: immediate execution (DOM already parsed) =====
+(function(){
   var addBtn=byId('addBtn');
   if(addBtn)addBtn.addEventListener('click',toggleForm);
 
@@ -391,5 +391,5 @@ document.addEventListener('DOMContentLoaded',function(){
   });
 
   loadData();
-});
+})();
 </script></body></html>
