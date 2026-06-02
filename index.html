@@ -1,326 +1,116 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Viewer — Suivi Produits Amazon</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #0f0f1a;
-            color: #e0e0e0;
-            min-height: 100vh;
-            padding: 2rem;
-        }
-        .container { max-width: 1100px; margin: 0 auto; }
-        header { text-align: center; margin-bottom: 2.5rem; }
-        h1 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, #ff9900, #ff6b6b, #c084fc);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        .subtitle { color: #888; margin-top: 0.5rem; font-size: 1.1rem; }
-        .stats-bar {
-            display: flex; gap: 1.5rem; justify-content: center;
-            margin: 1.5rem 0; flex-wrap: wrap;
-        }
-        .stat-card {
-            background: #1a1a2e; padding: 0.8rem 1.5rem; border-radius: 12px;
-            border: 1px solid #2a2a4a; text-align: center; min-width: 120px;
-        }
-        .stat-card .number { font-size: 1.8rem; font-weight: 700; color: #ff9900; }
-        .stat-card .label { font-size: 0.8rem; color: #888; text-transform: uppercase; letter-spacing: 0.5px; }
-        .status-bar {
-            display: flex; gap: 0.5rem; justify-content: center;
-            margin: 1rem 0; flex-wrap: wrap;
-        }
-        .status-tag {
-            display: inline-block; padding: 0.25rem 0.8rem; border-radius: 20px;
-            font-size: 0.75rem; font-weight: 600;
-        }
-        .status-saved { background: rgba(34,197,94,0.15); color: #22c55e; }
-        .status-error { background: rgba(239,68,68,0.15); color: #ef4444; }
-        .status-loading { background: rgba(251,191,36,0.15); color: #fbbf24; }
-        .table-wrapper {
-            background: #1a1a2e; border-radius: 16px; border: 1px solid #2a2a4a;
-            overflow: hidden; overflow-x: auto;
-        }
-        table { width: 100%; border-collapse: collapse; min-width: 650px; }
-        thead { background: linear-gradient(135deg, #1e1e3a, #2a1a3a); }
-        th {
-            padding: 1rem 1.2rem; text-align: left; font-weight: 600;
-            font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px;
-            color: #c084fc; white-space: nowrap;
-        }
-        td {
-            padding: 0.9rem 1.2rem; border-top: 1px solid #2a2a4a; font-size: 0.95rem;
-        }
-        tr:hover td { background: rgba(192, 132, 252, 0.05); }
-        .badge {
-            display: inline-block; padding: 0.2rem 0.7rem; border-radius: 20px;
-            font-size: 0.75rem; font-weight: 600;
-        }
-        .badge-ok { background: rgba(34,197,94,0.2); color: #22c55e; }
-        .badge-pending { background: rgba(251,191,36,0.2); color: #fbbf24; }
-        .badge-urgent { background: rgba(239,68,68,0.2); color: #ef4444; }
-        .btn {
-            padding: 0.35rem 0.8rem; border: none; border-radius: 8px; cursor: pointer;
-            font-size: 0.8rem; font-weight: 500; transition: all 0.2s;
-        }
-        .btn-del { background: rgba(239,68,68,0.15); color: #ef4444; }
-        .btn-primary {
-            background: linear-gradient(135deg, #c084fc, #ff9900); color: #fff;
-            padding: 0.6rem 1.5rem; border: none; border-radius: 10px;
-            font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: opacity 0.2s;
-        }
-        .btn-primary:hover { opacity: 0.9; }
-        .add-form {
-            background: #1a1a2e; border: 1px solid #2a2a4a; border-radius: 16px;
-            padding: 1.5rem; margin-bottom: 1.5rem; display: none;
-        }
-        .add-form.visible { display: block; }
-        .form-row { display: flex; gap: 1rem; flex-wrap: wrap; }
-        .form-group { flex: 1; min-width: 180px; }
-        .form-group label {
-            display: block; font-size: 0.8rem; color: #888; margin-bottom: 0.3rem;
-            text-transform: uppercase; letter-spacing: 0.5px;
-        }
-        .form-group input {
-            width: 100%; padding: 0.6rem 0.8rem; background: #111; border: 1px solid #333;
-            border-radius: 8px; color: #e0e0e0; font-size: 0.9rem;
-        }
-        .form-group input:focus { outline: none; border-color: #c084fc; }
-        .form-actions { display: flex; gap: 0.8rem; margin-top: 1rem; }
-        .empty-state { text-align: center; padding: 3rem 1rem; color: #666; }
-        .empty-state .icon { font-size: 3rem; margin-bottom: 1rem; }
-        .footer { text-align: center; margin-top: 2rem; color: #555; font-size: 0.8rem; }
-        @media (max-width: 768px) { body { padding: 1rem; } h1 { font-size: 1.8rem; } .form-row { flex-direction: column; } }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Viewer — Suivi Produits Amazon</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0f0f1a;color:#e0e0e0;min-height:100vh;padding:2rem}
+.container{max-width:1100px;margin:0 auto}
+header{text-align:center;margin-bottom:2.5rem}
+h1{font-size:2.5rem;font-weight:700;background:linear-gradient(135deg,#ff9900,#ff6b6b,#c084fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.subtitle{color:#888;margin-top:.5rem;font-size:1.1rem}
+.stats-bar{display:flex;gap:1.5rem;justify-content:center;margin:1.5rem 0;flex-wrap:wrap}
+.stat-card{background:#1a1a2e;padding:.8rem 1.5rem;border-radius:12px;border:1px solid #2a2a4a;text-align:center;min-width:120px}
+.stat-card .number{font-size:1.8rem;font-weight:700;color:#ff9900}
+.stat-card .label{font-size:.8rem;color:#888;text-transform:uppercase;letter-spacing:.5px}
+.sync-status{display:flex;gap:.5rem;justify-content:center;margin:1rem 0;flex-wrap:wrap}
+.tag{display:inline-block;padding:.25rem .8rem;border-radius:20px;font-size:.75rem;font-weight:600}
+.tag-ok{background:rgba(34,197,94,.15);color:#22c55e}
+.tag-err{background:rgba(239,68,68,.15);color:#ef4444}
+.tag-sync{background:rgba(251,191,36,.15);color:#fbbf24}
+.table-wrapper{background:#1a1a2e;border-radius:16px;border:1px solid #2a2a4a;overflow:hidden;overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:650px}
+thead{background:linear-gradient(135deg,#1e1e3a,#2a1a3a)}
+th{padding:1rem 1.2rem;text-align:left;font-weight:600;font-size:.85rem;text-transform:uppercase;letter-spacing:.5px;color:#c084fc;white-space:nowrap}
+td{padding:.9rem 1.2rem;border-top:1px solid #2a2a4a;font-size:.95rem}
+tr:hover td{background:rgba(192,132,252,.05)}
+.badge{display:inline-block;padding:.2rem .7rem;border-radius:20px;font-size:.75rem;font-weight:600}
+.badge-done{background:rgba(34,197,94,.2);color:#22c55e}
+.badge-wait{background:rgba(251,191,36,.2);color:#fbbf24}
+.badge-urg{background:rgba(239,68,68,.2);color:#ef4444}
+.btn{padding:.35rem .8rem;border:none;border-radius:8px;cursor:pointer;font-size:.8rem;font-weight:500;transition:all .2s}
+.btn-del{background:rgba(239,68,68,.15);color:#ef4444}
+.btn-pri{background:linear-gradient(135deg,#c084fc,#ff9900);color:#fff;padding:.6rem 1.5rem;border:none;border-radius:10px;font-size:.95rem;font-weight:600;cursor:pointer;transition:opacity .2s}
+.btn-pri:hover{opacity:.9}
+.btn-sec{background:#333;color:#999;padding:.6rem 1.5rem;border:none;border-radius:10px;font-size:.95rem;cursor:pointer}
+.form-box{background:#1a1a2e;border:1px solid #2a2a4a;border-radius:16px;padding:1.5rem;margin-bottom:1.5rem;display:none}
+.form-box.show{display:block}
+.frow{display:flex;gap:1rem;flex-wrap:wrap}
+.fg{flex:1;min-width:180px}
+.fg label{display:block;font-size:.8rem;color:#888;margin-bottom:.3rem;text-transform:uppercase;letter-spacing:.5px}
+.fg input{width:100%;padding:.6rem .8rem;background:#111;border:1px solid #333;border-radius:8px;color:#e0e0e0;font-size:.9rem}
+.fg input:focus{outline:none;border-color:#c084fc}
+.fa{display:flex;gap:.8rem;margin-top:1rem}
+.empty{text-align:center;padding:3rem 1rem;color:#666}
+.empty .i{font-size:3rem;margin-bottom:1rem}
+.ft{text-align:center;margin-top:2rem;color:#555;font-size:.8rem}
+@media(max-width:768px){body{padding:1rem}h1{font-size:1.8rem}.frow{flex-direction:column}}
+</style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>📋 Viewer</h1>
-            <p class="subtitle">Suivi des produits Amazon — commandes, réceptions & commentaires</p>
-            <div class="stats-bar">
-                <div class="stat-card">
-                    <div class="number" id="totalCount">0</div>
-                    <div class="label">Produits</div>
-                </div>
-                <div class="stat-card">
-                    <div class="number" id="pendingCount">0</div>
-                    <div class="label">En attente</div>
-                </div>
-                <div class="stat-card">
-                    <div class="number" id="urgentCount">0</div>
-                    <div class="label">Urgents 🔴</div>
-                </div>
-            </div>
-            <div class="status-bar">
-                <span id="syncStatus" class="status-tag status-loading">⏳ Connexion Supabase...</span>
-            </div>
-        </header>
+<div class="container">
+<header>
+<h1>📋 Viewer</h1>
+<p class="subtitle">Suivi des produits Amazon — commandes, réceptions & commentaires</p>
+<div class="stats-bar">
+<div class="stat-card"><div class="number" id="nTotal">0</div><div class="label">Produits</div></div>
+<div class="stat-card"><div class="number" id="nWait">0</div><div class="label">En attente</div></div>
+<div class="stat-card"><div class="number" id="nUrg">0</div><div class="label">Urgents 🔴</div></div>
+</div>
+<div class="sync-status"><span id="syncTag" class="tag tag-sync">⏳ Connexion...</span></div>
+</header>
 
-        <button class="btn-primary" onclick="toggleForm()">＋ Ajouter un produit</button>
+<button class="btn-pri" onclick="tf()">＋ Ajouter un produit</button>
 
-        <div class="add-form" id="addForm">
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Produit</label>
-                    <input type="text" id="inputProduct" placeholder="Ex: Écouteurs Bluetooth XYZ">
-                </div>
-                <div class="form-group">
-                    <label>Date commande</label>
-                    <input type="date" id="inputOrdered">
-                </div>
-                <div class="form-group">
-                    <label>Date réception</label>
-                    <input type="date" id="inputReceived">
-                </div>
-                <div class="form-group">
-                    <label>Date limite commentaire</label>
-                    <input type="date" id="inputDeadline">
-                </div>
-            </div>
-            <div class="form-actions">
-                <button class="btn-primary" onclick="addProduct()">✅ Enregistrer</button>
-                <button class="btn" style="background:#333;color:#999;" onclick="toggleForm()">Annuler</button>
-            </div>
-        </div>
+<div class="form-box" id="formBox">
+<div class="frow">
+<div class="fg"><label>Produit</label><input type="text" id="inpP" placeholder="Ex: Écouteurs Bluetooth"></div>
+<div class="fg"><label>Date commande</label><input type="date" id="inpO"></div>
+<div class="fg"><label>Date réception</label><input type="date" id="inpR"></div>
+<div class="fg"><label>Date limite commentaire</label><input type="date" id="inpD"></div>
+</div>
+<div class="fa">
+<button class="btn-pri" onclick="add()">✅ Enregistrer</button>
+<button class="btn-sec" onclick="tf()">Annuler</button>
+</div>
+</div>
 
-        <div style="margin-top:1.5rem;" class="table-wrapper">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Produit</th>
-                        <th>📦 Commande</th>
-                        <th>📬 Réception</th>
-                        <th>⏰ Limite commentaire</th>
-                        <th>Statut</th>
-                        <th style="text-align:center;">Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="productTableBody"></tbody>
-            </table>
-        </div>
-        <div class="footer">
-            ☁️ Données synchronisées sur Supabase · <span id="updateDate"></span>
-        </div>
-    </div>
+<div style="margin-top:1.5rem" class="table-wrapper">
+<table>
+<thead><tr>
+<th>Produit</th><th>📦 Commande</th><th>📬 Réception</th><th>⏰ Limite</th><th>Statut</th><th style="text-align:center">Actions</th>
+</tr></thead>
+<tbody id="tbl"></tbody>
+</table>
+</div>
+<div class="ft">☁️ Données sauvegardées sur Supabase — accessible depuis tous tes appareils · <span id="updDt"></span></div>
+</div>
 
-    <script>
-        const SUPABASE_URL = 'https://supabase.sagetech.vip';
-        const SUPABASE_KEY = atob('ZXlKMGVYQWlPaUpLVjFRaUxDSmhiR2NpT2lKSVV6STFOaUo5LmV5SnBjM01pT2lKemRYQmhZbUZ6WlNJc0ltbGhkQ0k2TVRjM09EYzROVEl3TUN3aVpYaHdJam8wT1RNME5EVTRPREF3TENKeWIyeGxJam9pYzJWeWRtbGpaVjl5YjJ4bEluMC5pRGFFZmU0cEhNemtlZmY5Q3U4Yy1ZandEQWVzNU5ZNzVvUEQxb1ZtdUlr');
-        const TABLE_NAME = 'amazon_products';
+<script>
+const SB_URL='https://supabase.sagetech.vip';
+const SB_KEY=atob('ZXlKMGVYQWlPaUpLVjFRaUxDSmhiR2NpT2lKSVV6STFOaUo5LmV5SnBjM01pT2lKemRYQmhZbUZ6WlNJc0ltbGhkQ0k2TVRjM09EYzROVEl3TUN3aVpYaHdJam8wT1RNME5EVTRPREF3TENKeWIyeGxJam9pYzJWeWRtbGpaVjl5YjJ4bEluMC5pRGFFZmU0cEhNemtlZmY5Q3U4Yy1ZandEQWVzNU5ZNzVvUEQxb1ZtdUlr');
+const FILE='product-viewer.json';
 
-        let STATUS_SYNCING = false;
+function st(t,c){document.getElementById('syncTag').textContent=t;document.getElementById('syncTag').className='tag '+c}
 
-        function setSyncStatus(msg, cls) {
-            const el = document.getElementById('syncStatus');
-            el.textContent = msg;
-            el.className = 'status-tag ' + cls;
-        }
+async function api(m,b){try{const u=SB_URL+'/storage/v1/object/'+FILE;const h={'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json'};const r=await fetch(u,{method:m||'GET',headers:h,body:b?JSON.stringify(b):undefined});if(!r.ok&&r.status!==404)throw new Error('HTTP '+r.status);return r.status===204||r.status===404?[]:await r.json()}catch(e){throw e}}
 
-        // ─── Supabase REST helpers ───
-        async function supabaseFetch(method, params) {
-            const url = SUPABASE_URL + '/rest/v1/' + TABLE_NAME + (params?.query || '');
-            const headers = {
-                'apikey': SUPABASE_KEY,
-                'Authorization': 'Bearer ' + SUPABASE_KEY,
-                'Content-Type': 'application/json',
-                'Prefer': 'return=representation'
-            };
-            const res = await fetch(url, {
-                method: method || 'GET',
-                headers: headers,
-                body: params?.body ? JSON.stringify(params.body) : undefined
-            });
-            if (!res.ok) {
-                const text = await res.text();
-                throw new Error(`HTTP ${res.status}: ${text}`);
-            }
-            return res.status === 204 ? null : await res.json();
-        }
+async function ld(){try{st('⏳ Chargement...','tag-sync');const d=await api();render(Array.isArray(d)?d:[]);st('☁️ Synchronisé','tag-ok')}catch(e){st('❌ '+e.message,'tag-err');render([])}}
 
-        // ─── Product CRUD ───
-        async function loadProducts() {
-            try {
-                setSyncStatus('⏳ Chargement...', 'status-loading');
-                const data = await supabaseFetch('GET', { query: '?order=deadline.asc' });
-                render(data || []);
-                setSyncStatus('☁️ Synchronisé', 'status-saved');
-            } catch (e) {
-                console.error('Load error:', e);
-                setSyncStatus('❌ Erreur: ' + e.message, 'status-error');
-                render([]);
-            }
-        }
+async function add(){const p=document.getElementById('inpP').value.trim();const o=document.getElementById('inpO').value;const r=document.getElementById('inpR').value||null;const d=document.getElementById('inpD').value;if(!p||!o||!d){alert('Produit, commande et deadline requis');return}try{st('⏳ Enregistrement...','tag-sync');let cur=[];try{const x=await api();cur=Array.isArray(x)?x:[]}catch(e){}cur.push({id:Date.now(),product:p,ordered:o,received:r,deadline:d});await api('PUT',cur);document.getElementById('inpP').value='';document.getElementById('inpO').value='';document.getElementById('inpR').value='';document.getElementById('inpD').value='';tf();await ld();st('✅ Enregistré','tag-ok')}catch(e){st('❌ '+e.message,'tag-err');alert('Erreur: '+e.message)}}
 
-        async function addProduct() {
-            const product = document.getElementById('inputProduct').value.trim();
-            const ordered = document.getElementById('inputOrdered').value;
-            const received = document.getElementById('inputReceived').value || null;
-            const deadline = document.getElementById('inputDeadline').value;
+async function del(id){if(!confirm('Supprimer ce produit ?'))return;try{st('⏳ Suppression...','tag-sync');let cur=await api();cur=Array.isArray(cur)?cur:[];cur=cur.filter(x=>x.id!==id);await api('PUT',cur);await ld();st('✅ Supprimé','tag-ok')}catch(e){st('❌ '+e.message,'tag-err')}}
 
-            if (!product || !ordered || !deadline) {
-                alert('❌ Produit, date commande et date limite sont requis');
-                return;
-            }
+function fmt(d){if(!d)return'—';const p=d.split('-');return p[2]+'/'+p[1]+'/'+(p[0]||'')}
 
-            try {
-                setSyncStatus('⏳ Enregistrement...', 'status-loading');
-                const body = { product, ordered, received, deadline };
-                const result = await supabaseFetch('POST', { body });
-                console.log('Saved:', result);
-                document.getElementById('inputProduct').value = '';
-                document.getElementById('inputOrdered').value = '';
-                document.getElementById('inputReceived').value = '';
-                document.getElementById('inputDeadline').value = '';
-                toggleForm();
-                await loadProducts();
-                setSyncStatus('✅ Enregistré', 'status-saved');
-            } catch (e) {
-                console.error('Save error:', e);
-                setSyncStatus('❌ Erreur: ' + e.message, 'status-error');
-                alert('❌ Erreur lors de l\'enregistrement: ' + e.message);
-            }
-        }
+function bg(d,r){if(!d)return{l:'⚠️ Inc.',c:'badge-urg'};const n=new Date();n.setHours(0,0,0,0);const dl=new Date(d+'T23:59:59');if(r)return{l:'✅ Commenté',c:'badge-done'};if(dl<n)return{l:'🔴 Urgent',c:'badge-urg'};const dd=Math.ceil((dl-n)/864e5);if(dd<=3)return{l:'🟡 Dans '+dd+'j',c:'badge-urg'};return{l:'⏳ '+dd+'j',c:'badge-wait'}}
 
-        async function deleteProduct(id) {
-            if (!confirm('Supprimer ce produit ?')) return;
-            try {
-                setSyncStatus('⏳ Suppression...', 'status-loading');
-                await supabaseFetch('DELETE', { query: '?id=eq.' + id });
-                await loadProducts();
-                setSyncStatus('✅ Supprimé', 'status-saved');
-            } catch (e) {
-                console.error('Delete error:', e);
-                setSyncStatus('❌ Erreur: ' + e.message, 'status-error');
-            }
-        }
+function render(d){document.getElementById('nTotal').textContent=d.length;document.getElementById('nWait').textContent=d.filter(x=>!x.received).length;const n=new Date();n.setHours(0,0,0,0);document.getElementById('nUrg').textContent=d.filter(x=>{if(x.received)return false;if(!x.deadline)return true;return new Date(x.deadline+'T23:59:59')<n}).length;const tb=document.getElementById('tbl');if(!d.length){tb.innerHTML='<tr><td colspan="6"><div class="empty"><div class="i">📦</div>Aucun produit. Cliquez sur "＋ Ajouter un produit".</div></td></tr>';return}tb.innerHTML=d.sort((a,b)=>new Date(b.deadline||'2099')-new Date(a.deadline||'2099')).map(x=>{const b=bg(x.deadline,x.received);return'<tr><td><strong>'+x.product+'</strong></td><td>'+fmt(x.ordered)+'</td><td>'+fmt(x.received)+'</td><td>'+fmt(x.deadline)+'</td><td><span class="badge '+b.c+'">'+b.l+'</span></td><td style="text-align:center"><button class="btn btn-del" onclick="del('+x.id+')">🗑️</button></td></tr>'}).join('');document.getElementById('updDt').textContent=new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'})}
 
-        // ─── Render ───
-        function fmtDate(d) {
-            if (!d) return '—';
-            const p = d.split('-');
-            return p[2] + '/' + p[1] + '/' + p[0];
-        }
-
-        function getBadge(deadline, received) {
-            if (!deadline) return { label: '⚠️ Incomplet', cls: 'badge-urgent' };
-            const today = new Date(); today.setHours(0,0,0,0);
-            const dl = new Date(deadline + 'T23:59:59');
-            if (received) return { label: '✅ Commenté', cls: 'badge-ok' };
-            if (dl < today) return { label: '🔴 Urgent', cls: 'badge-urgent' };
-            const d = Math.ceil((dl - today) / (1000*60*60*24));
-            if (d <= 3) return { label: '🟡 Dans ' + d + 'j', cls: 'badge-urgent' };
-            return { label: '⏳ ' + d + 'j restants', cls: 'badge-pending' };
-        }
-
-        function render(products) {
-            const tbody = document.getElementById('productTableBody');
-
-            document.getElementById('totalCount').textContent = products.length;
-            document.getElementById('pendingCount').textContent = products.filter(p => !p.received).length;
-            const today = new Date(); today.setHours(0,0,0,0);
-            document.getElementById('urgentCount').textContent = products.filter(p => {
-                if (p.received) return false;
-                if (!p.deadline) return true;
-                return new Date(p.deadline + 'T23:59:59') < today;
-            }).length;
-
-            if (products.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="icon">📦</div>Aucun produit pour le moment.<br>Cliquez sur "＋ Ajouter un produit" pour commencer.</div></td></tr>';
-                return;
-            }
-
-            tbody.innerHTML = products.map(p => {
-                const b = getBadge(p.deadline, p.received);
-                return `<tr>
-                    <td><strong>${p.product}</strong></td>
-                    <td>${fmtDate(p.ordered)}</td>
-                    <td>${fmtDate(p.received)}</td>
-                    <td>${fmtDate(p.deadline)}</td>
-                    <td><span class="badge ${b.cls}">${b.label}</span></td>
-                    <td style="text-align:center;">
-                        <button class="btn btn-del" onclick="deleteProduct(${p.id})">🗑️</button>
-                    </td>
-                </tr>`;
-            }).join('');
-
-            document.getElementById('updateDate').textContent = new Date().toLocaleDateString('fr-FR', {day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'});
-        }
-
-        function toggleForm() {
-            document.getElementById('addForm').classList.toggle('visible');
-        }
-
-        // ─── Init ───
-        loadProducts();
-    </script>
+function tf(){document.getElementById('formBox').classList.toggle('show')}
+ld();
+</script>
 </body>
 </html>
