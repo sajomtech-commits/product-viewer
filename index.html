@@ -108,7 +108,7 @@ h1{font-size:1.6rem}
 <div class="stat-card"><div class="num" id="nRefundDue">0€</div><div class="lbl">Remb. dû</div></div>
 <div class="stat-card"><div class="num" id="nRefundPaid">0€</div><div class="lbl">Remb. reçu</div></div>
 </div>
-<div class="sync-wrap"><span id="syncTag" class="tag" style="background:rgba(251,191,36,.15);color:var(--yellow)">⏳ Connexion...</span></div>
+<div class="sync-wrap"><span id="syncTag" class="tag tag-sync">⏳ Connexion...</span></div>
 </header>
 
 <button class="btn-pri" onclick="tf()">＋ Ajouter un produit</button>
@@ -168,19 +168,19 @@ function st(t,c){document.getElementById('syncTag').textContent=t;document.getEl
 
 async function api(m,b){try{const u=SB_URL+'/storage/v1/object/'+FILE;const h={'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json'};const r=await fetch(u,{method:m||'GET',headers:h,body:b?JSON.stringify(b):undefined});if(!r.ok&&r.status!==404)throw new Error('HTTP '+r.status);return r.status===204||r.status===404?[]:await r.json()}catch(e){throw e}}
 
-async function ld(){try{st('\u23f3 Chargement...','tag-sync');_data=await api();_data=Array.isArray(_data)?_data:[];_page=1;render();st('\u2601\ufe0f Synchronis\u00e9','tag-ok')}catch(e){st('\u274c '+e.message,'tag-err');_data=[];render()}}
+async function ld(){try{st('⏳ Chargement...','tag-sync');_data=await api();_data=Array.isArray(_data)?_data:[];_page=1;render();st('☁️ Synchronisé','tag-ok')}catch(e){st('❌ '+e.message,'tag-err');_data=[];render()}}
 
-async function add(){const p=document.getElementById('inpP').value.trim();const pr=parseFloat(document.getElementById('inpPrice').value)||0;const o=document.getElementById('inpO').value;const r=document.getElementById('inpR').value||'';const rf=parseFloat(document.getElementById('inpRefund').value)||0;const pp=document.getElementById('inpPP').value;const cd=document.getElementById('inpCD').value;const cp=document.getElementById('inpCP').checked;if(!p||!o||!cd){alert('\u274c Produit, date commande et date commentaire requis');return}try{st('\u23f3 Enregistrement...','tag-sync');let cur=[];try{cur=await api();cur=Array.isArray(cur)?cur:[]}catch(e){}cur.push({id:Date.now(),product:p,price:pr,ordered:o,received:r,refund:rf,paypal:pp,commentDate:cd,commentPosted:cp,refundPaid:false});await api('PUT',cur);document.getElementById('inpP').value='';document.getElementById('inpPrice').value='';document.getElementById('inpO').value='';document.getElementById('inpR').value='';document.getElementById('inpRefund').value='';document.getElementById('inpPP').value='';document.getElementById('inpCD').value='';document.getElementById('inpCP').checked=false;tf();await ld();st('\u2705 Enregistr\u00e9','tag-ok')}catch(e){st('\u274c '+e.message,'tag-err');alert('Erreur: '+e.message)}}
+async function add(){const p=document.getElementById('inpP').value.trim();const pr=parseFloat(document.getElementById('inpPrice').value)||0;const o=document.getElementById('inpO').value;const r=document.getElementById('inpR').value||'';const rf=parseFloat(document.getElementById('inpRefund').value)||0;const pp=document.getElementById('inpPP').value;const cd=document.getElementById('inpCD').value;const cp=document.getElementById('inpCP').checked;if(!p||!o||!cd){alert('❌ Produit, date commande et date commentaire requis');return}try{st('⏳ Enregistrement...','tag-sync');let cur=[];try{cur=await api();cur=Array.isArray(cur)?cur:[]}catch(e){}cur.push({id:Date.now(),product:p,price:pr,ordered:o,received:r,refund:rf,paypal:pp,commentDate:cd,commentPosted:cp,refundPaid:false});await api('PUT',cur);document.getElementById('inpP').value='';document.getElementById('inpPrice').value='';document.getElementById('inpO').value='';document.getElementById('inpR').value='';document.getElementById('inpRefund').value='';document.getElementById('inpPP').value='';document.getElementById('inpCD').value='';document.getElementById('inpCP').checked=false;tf();await ld();st('✅ Enregistré','tag-ok')}catch(e){st('❌ '+e.message,'tag-err');alert('Erreur: '+e.message)}}
 
-async function del(id){if(!confirm('Supprimer ce produit ?'))return;try{st('\u23f3 Suppression...','tag-sync');let cur=await api();cur=Array.isArray(cur)?cur:[];cur=cur.filter(x=>x.id!==id);await api('PUT',cur);await ld();st('\u2705 Supprim\u00e9','tag-ok')}catch(e){st('\u274c '+e.message,'tag-err')}}
+async function del(id){if(!confirm('Supprimer ce produit ?'))return;try{st('⏳ Suppression...','tag-sync');let cur=await api();cur=Array.isArray(cur)?cur:[];cur=cur.filter(x=>x.id!==id);await api('PUT',cur);await ld();st('✅ Supprimé','tag-ok')}catch(e){st('❌ '+e.message,'tag-err')}}
 
-function toggleField(id,field){ld().then(()=>{});api().then(cur=>{cur=Array.isArray(cur)?cur:[];const i=cur.findIndex(x=>x.id===id);if(i>-1){cur[i][field]=!cur[i][field];api('PUT',cur).then(()=>ld())}}).catch(e=>st('\u274c '+e.message,'tag-err'))}
+async function toggleField(id,field){try{let cur=await api();cur=Array.isArray(cur)?cur:[];const idx=cur.findIndex(x=>x.id===id);if(idx===-1)return;cur[idx][field]=!cur[idx][field];await api('PUT',cur);await ld()}catch(e){st('❌ '+e.message,'tag-err')}}
 
-function fmt(d){if(!d||d==='')return'\u2014';const p=d.split('-');return p[2]+'/'+p[1]+'/'+p[0]}
+function fmt(d){if(!d||d==='')return'—';const p=d.split('-');return p[2]+'/'+p[1]+'/'+p[0]}
 
-function euro(n){if(n===undefined||n===null)return'\u2014';return n.toFixed(2)+'\u20ac'}
+function euro(n){if(n===undefined||n===null)return'—';return n.toFixed(2)+'€'}
 
-function getBadge(item){const cd=item.commentDate;const cp=item.commentPosted;const rp=item.refundPaid;if(cp&&rp)return{l:'\u2705 Termin\u00e9',c:'badge-done'};if(cp&&!rp)return{l:'\u23f3 En attente remb.',c:'badge-wait'};if(!cd)return{l:'\u26a0\ufe0f Pas de date',c:'badge-urg'};const n=new Date();n.setHours(0,0,0,0);const d=new Date(cd+'T23:59:59');if(d.getTime()===n.getTime())return{l:'\ud83d\udd14 \u00c0 commenter!',c:'badge-today'};if(d<n)return{l:'\ud83d\udd34 En retard!',c:'badge-urg'};const dd=Math.ceil((d-n)/864e5);if(dd<=3)return{l:'\ud83d\udfe1 Dans '+dd+'j',c:'badge-urg'};return{l:'\u23f3 '+dd+'j',c:'badge-wait'}}
+function getBadge(item){const cd=item.commentDate;const cp=item.commentPosted;const rp=item.refundPaid;if(cp&&rp)return{l:'✅ Terminé',c:'badge-done'};if(cp&&!rp)return{l:'⏳ En attente remb.',c:'badge-wait'};if(!cd)return{l:'⚠️ Pas de date',c:'badge-urg'};const n=new Date();n.setHours(0,0,0,0);const d=new Date(cd+'T23:59:59');if(d.getTime()===n.getTime())return{l:'🔔 À commenter!',c:'badge-today'};if(d<n)return{l:'🔴 En retard!',c:'badge-urg'};const dd=Math.ceil((d-n)/864e5);if(dd<=3)return{l:'🟡 Dans '+dd+'j',c:'badge-urg'};return{l:'⏳ '+dd+'j',c:'badge-wait'}}
 
 function render(){
 const items=_data.sort((a,b)=>new Date(a.commentDate||'2099')-new Date(b.commentDate||'2099'));
@@ -196,32 +196,23 @@ document.getElementById('nTotal').textContent=total;
 document.getElementById('nToday').textContent=toCmt;
 document.getElementById('nDone').textContent=done;
 document.getElementById('nWait').textContent=waiting;
-document.getElementById('nRefundDue').textContent=refundDue.toFixed(2)+'\u20ac';
-document.getElementById('nRefundPaid').textContent=refundPaidAmt.toFixed(2)+'\u20ac';
-document.getElementById('sInvest').textContent=refundDue.toFixed(2)+'\u20ac';
-document.getElementById('sRefundDue').textContent=refundDue.toFixed(2)+'\u20ac';
-document.getElementById('sRefundPaid').textContent=refundPaidAmt.toFixed(2)+'\u20ac';
-document.getElementById('sNet').textContent=refundPaidAmt.toFixed(2)+'\u20ac';
+document.getElementById('nRefundDue').textContent=refundDue.toFixed(2)+'€';
+document.getElementById('nRefundPaid').textContent=refundPaidAmt.toFixed(2)+'€';
+document.getElementById('sInvest').textContent=refundDue.toFixed(2)+'€';
+document.getElementById('sRefundDue').textContent=refundDue.toFixed(2)+'€';
+document.getElementById('sRefundPaid').textContent=refundPaidAmt.toFixed(2)+'€';
+document.getElementById('sNet').textContent=refundPaidAmt.toFixed(2)+'€';
 document.getElementById('sProfit').textContent=refundDue>0?'100%':'0%';
 document.getElementById('sCmtPct').textContent=total>0?((done/total)*100).toFixed(0)+'%':'0%';
 const totalPages=Math.max(1,Math.ceil(total/PER_PAGE));
 if(_page>totalPages)_page=totalPages;
 const start=(_page-1)*PER_PAGE;
 const pg=items.slice(start,start+PER_PAGE);
-const R=pg.map(x=>{
-const b=getBadge(x);
-const ckCmt=x.commentPosted?'checked':'';
-const ckRef=x.refundPaid?'checked':'';
-return '<tr><td><strong>'+x.product+'</strong></td><td>'+euro(x.price)+'</td><td>'+fmt(x.ordered)+'</td><td>'+fmt(x.received)+'</td><td>'+euro(x.refund)+'</td><td>'+(x.paypal==='yes'?'<span class="pp-tag pp-yes">\u2705</span>':x.paypal==='no'?'<span class="pp-tag pp-no">\u274c</span>':'\u2014')+'</td><td>'+fmt(x.commentDate)+'</td><td style="text-align:center"><input type="checkbox" '+ckCmt+' onchange="toggleField(\''+x.id+'\',\'commentPosted\')"></td><td style="text-align:center"><input type="checkbox" '+ckRef+' onchange="toggleField(\''+x.id+'\',\'refundPaid\')"></td><td><span class="badge '+b.c+'">'+b.l+'</span></td><td style="text-align:center"><button class="btn btn-del" onclick="del(\''+x.id+'\')">\ud83d\uddd1\ufe0f</button></td></tr>'
-}).join('');
-const tb=document.getElementById('tbl');tb.innerHTML=R||'<tr><td colspan="11"><div class="empty"><div class="i">\ud83d\udce6</div>Aucun produit.</div></td></tr>';
-const C=pg.map(x=>{
-const b=getBadge(x);
-const ckCmt=x.commentPosted?'checked':'';
-const ckRef=x.refundPaid?'checked':'';
-return '<tr class="card-row"><td colspan="11"><div class="cr-prod">'+x.product+' <span class="price-neutral">'+euro(x.price)+'</span></div><div class="cr-dates"><span>\ud83d\udce6 '+fmt(x.ordered)+'</span><span>\ud83d\udcec '+fmt(x.received)+'</span></div><div class="cr-dates"><span>\ud83d\uddd3\ufe0f '+fmt(x.commentDate)+'</span><span>'+(x.paypal==='yes'?'\u2705 Frais':x.paypal==='no'?'\u274c Sans':'\u2014')+'</span></div><div class="cr-dates"><span>\ud83d\udcb8 '+euro(x.refund)+' d\u00fb</span><span>\u2705 Re\u00e7u: '+(x.refundPaid?'Oui':'Non')+'</span></div><div class="cr-cmt"><span class="badge '+b.c+'">'+b.l+'</span></div><div class="cr-cbox"><input type="checkbox" '+ckCmt+' onchange="toggleField(\''+x.id+'\',\'commentPosted\')"> <span>Comment\u00e9 en ligne</span></div><div class="cr-cbox"><input type="checkbox" '+ckRef+' onchange="toggleField(\''+x.id+'\',\'refundPaid\')"> <span>Remb. re\u00e7u</span></div><div class="cr-actions"><button class="btn btn-del" onclick="del(\''+x.id+'\')">\ud83d\uddd1\ufe0f</button></div></td></tr>'
-}).join('');
-document.getElementById('tblCards').innerHTML=C;
+const tb=document.getElementById('tbl');
+tb.innerHTML=pg.map(x=>{const b=getBadge(x);const ckCmt=x.commentPosted?'checked':'';const ckRef=x.refundPaid?'checked':'';return '<tr><td><strong>'+x.product+'</strong></td><td>'+euro(x.price)+'</td><td>'+fmt(x.ordered)+'</td><td>'+fmt(x.received)+'</td><td>'+euro(x.refund)+'</td><td>'+(x.paypal==='yes'?'<span class="pp-tag pp-yes">✅</span>':x.paypal==='no'?'<span class="pp-tag pp-no">❌</span>':'—')+'</td><td>'+fmt(x.commentDate)+'</td><td style="text-align:center"><input type="checkbox" '+ckCmt+' onchange="toggleField('+x.id+',\'commentPosted\')"></td><td style="text-align:center"><input type="checkbox" '+ckRef+' onchange="toggleField('+x.id+',\'refundPaid\')"></td><td><span class="badge '+b.c+'">'+b.l+'</span></td><td style="text-align:center"><button class="btn btn-del" onclick="del('+x.id+')">🗑️</button></td></tr>'}).join('');
+if(!pg.length)tb.innerHTML='<tr><td colspan="11"><div class="empty"><div class="i">📦</div>Aucun produit.</div></td></tr>';
+const tc=document.getElementById('tblCards');
+tc.innerHTML=pg.map(x=>{const b=getBadge(x);const ckCmt=x.commentPosted?'checked':'';const ckRef=x.refundPaid?'checked':'';return '<tr class="card-row"><td colspan="11"><div class="cr-prod">'+x.product+' <span class="price-neutral">'+euro(x.price)+'</span></div><div class="cr-dates"><span>📦 '+fmt(x.ordered)+'</span><span>📬 '+fmt(x.received)+'</span></div><div class="cr-dates"><span>🗓️ '+fmt(x.commentDate)+'</span><span>'+(x.paypal==='yes'?'✅ Frais':x.paypal==='no'?'❌ Sans':'—')+'</span></div><div class="cr-dates"><span>💸 '+euro(x.refund)+' dû</span><span>✅ Reçu: '+(x.refundPaid?'Oui':'Non')+'</span></div><div class="cr-cmt"><span class="badge '+b.c+'">'+b.l+'</span></div><div class="cr-cbox"><input type="checkbox" '+ckCmt+' onchange="toggleField('+x.id+',\'commentPosted\')"> <span>Commenté en ligne</span></div><div class="cr-cbox"><input type="checkbox" '+ckRef+' onchange="toggleField('+x.id+',\'refundPaid\')"> <span>Remb. reçu</span></div><div class="cr-actions"><button class="btn btn-del" onclick="del('+x.id+')">🗑️</button></div></td></tr>'}).join('');
 document.getElementById('pagInfo').textContent='Page '+_page+' / '+totalPages;
 document.getElementById('pagPrev').disabled=_page<=1;
 document.getElementById('pagNext').disabled=_page>=totalPages;
@@ -231,6 +222,7 @@ document.getElementById('updDt').textContent=new Date().toLocaleDateString('fr-F
 function pag(d){_page=Math.max(1,Math.min(_page+d,Math.ceil(_data.length/PER_PAGE)));render()}
 function tf(){document.getElementById('formBox').classList.toggle('show')}
 ld();
+
 </script>
 </body>
 </html>
