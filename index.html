@@ -13,14 +13,8 @@
             min-height: 100vh;
             padding: 2rem;
         }
-        .container {
-            max-width: 1100px;
-            margin: 0 auto;
-        }
-        header {
-            text-align: center;
-            margin-bottom: 2.5rem;
-        }
+        .container { max-width: 1100px; margin: 0 auto; }
+        header { text-align: center; margin-bottom: 2.5rem; }
         h1 {
             font-size: 2.5rem;
             font-weight: 700;
@@ -29,164 +23,82 @@
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
-        .subtitle {
-            color: #888;
-            margin-top: 0.5rem;
-            font-size: 1.1rem;
-        }
+        .subtitle { color: #888; margin-top: 0.5rem; font-size: 1.1rem; }
         .stats-bar {
-            display: flex;
-            gap: 1.5rem;
-            justify-content: center;
-            margin: 1.5rem 0;
-            flex-wrap: wrap;
+            display: flex; gap: 1.5rem; justify-content: center;
+            margin: 1.5rem 0; flex-wrap: wrap;
         }
         .stat-card {
-            background: #1a1a2e;
-            padding: 0.8rem 1.5rem;
-            border-radius: 12px;
-            border: 1px solid #2a2a4a;
-            text-align: center;
-            min-width: 120px;
+            background: #1a1a2e; padding: 0.8rem 1.5rem; border-radius: 12px;
+            border: 1px solid #2a2a4a; text-align: center; min-width: 120px;
         }
-        .stat-card .number {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: #ff9900;
+        .stat-card .number { font-size: 1.8rem; font-weight: 700; color: #ff9900; }
+        .stat-card .label { font-size: 0.8rem; color: #888; text-transform: uppercase; letter-spacing: 0.5px; }
+        .status-bar {
+            display: flex; gap: 0.5rem; justify-content: center;
+            margin: 1rem 0; flex-wrap: wrap;
         }
-        .stat-card .label {
-            font-size: 0.8rem;
-            color: #888;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+        .status-tag {
+            display: inline-block; padding: 0.25rem 0.8rem; border-radius: 20px;
+            font-size: 0.75rem; font-weight: 600;
         }
+        .status-saved { background: rgba(34,197,94,0.15); color: #22c55e; }
+        .status-error { background: rgba(239,68,68,0.15); color: #ef4444; }
+        .status-loading { background: rgba(251,191,36,0.15); color: #fbbf24; }
         .table-wrapper {
-            background: #1a1a2e;
-            border-radius: 16px;
-            border: 1px solid #2a2a4a;
-            overflow: hidden;
-            overflow-x: auto;
+            background: #1a1a2e; border-radius: 16px; border: 1px solid #2a2a4a;
+            overflow: hidden; overflow-x: auto;
         }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            min-width: 650px;
-        }
-        thead {
-            background: linear-gradient(135deg, #1e1e3a, #2a1a3a);
-        }
+        table { width: 100%; border-collapse: collapse; min-width: 650px; }
+        thead { background: linear-gradient(135deg, #1e1e3a, #2a1a3a); }
         th {
-            padding: 1rem 1.2rem;
-            text-align: left;
-            font-weight: 600;
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: #c084fc;
-            white-space: nowrap;
+            padding: 1rem 1.2rem; text-align: left; font-weight: 600;
+            font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px;
+            color: #c084fc; white-space: nowrap;
         }
         td {
-            padding: 0.9rem 1.2rem;
-            border-top: 1px solid #2a2a4a;
-            font-size: 0.95rem;
+            padding: 0.9rem 1.2rem; border-top: 1px solid #2a2a4a; font-size: 0.95rem;
         }
-        tr:hover td {
-            background: rgba(192, 132, 252, 0.05);
+        tr:hover td { background: rgba(192, 132, 252, 0.05); }
+        .badge {
+            display: inline-block; padding: 0.2rem 0.7rem; border-radius: 20px;
+            font-size: 0.75rem; font-weight: 600;
         }
-        .status-badge {
-            display: inline-block;
-            padding: 0.2rem 0.7rem;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-        .status-ok { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
-        .status-pending { background: rgba(251, 191, 36, 0.2); color: #fbbf24; }
-        .status-urgent { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+        .badge-ok { background: rgba(34,197,94,0.2); color: #22c55e; }
+        .badge-pending { background: rgba(251,191,36,0.2); color: #fbbf24; }
+        .badge-urgent { background: rgba(239,68,68,0.2); color: #ef4444; }
         .btn {
-            padding: 0.35rem 0.8rem;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.8rem;
-            font-weight: 500;
-            transition: all 0.2s;
+            padding: 0.35rem 0.8rem; border: none; border-radius: 8px; cursor: pointer;
+            font-size: 0.8rem; font-weight: 500; transition: all 0.2s;
         }
-        .btn-edit { background: #2a2a4a; color: #c084fc; }
-        .btn-delete { background: rgba(239,68,68,0.15); color: #ef4444; }
+        .btn-del { background: rgba(239,68,68,0.15); color: #ef4444; }
         .btn-primary {
-            background: linear-gradient(135deg, #c084fc, #ff9900);
-            color: #fff;
-            padding: 0.6rem 1.5rem;
-            border: none;
-            border-radius: 10px;
-            font-size: 0.95rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: opacity 0.2s;
+            background: linear-gradient(135deg, #c084fc, #ff9900); color: #fff;
+            padding: 0.6rem 1.5rem; border: none; border-radius: 10px;
+            font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: opacity 0.2s;
         }
         .btn-primary:hover { opacity: 0.9; }
         .add-form {
-            background: #1a1a2e;
-            border: 1px solid #2a2a4a;
-            border-radius: 16px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            display: none;
+            background: #1a1a2e; border: 1px solid #2a2a4a; border-radius: 16px;
+            padding: 1.5rem; margin-bottom: 1.5rem; display: none;
         }
         .add-form.visible { display: block; }
-        .form-row {
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
-        .form-group {
-            flex: 1;
-            min-width: 180px;
-        }
+        .form-row { display: flex; gap: 1rem; flex-wrap: wrap; }
+        .form-group { flex: 1; min-width: 180px; }
         .form-group label {
-            display: block;
-            font-size: 0.8rem;
-            color: #888;
-            margin-bottom: 0.3rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            display: block; font-size: 0.8rem; color: #888; margin-bottom: 0.3rem;
+            text-transform: uppercase; letter-spacing: 0.5px;
         }
         .form-group input {
-            width: 100%;
-            padding: 0.6rem 0.8rem;
-            background: #111;
-            border: 1px solid #333;
-            border-radius: 8px;
-            color: #e0e0e0;
-            font-size: 0.9rem;
+            width: 100%; padding: 0.6rem 0.8rem; background: #111; border: 1px solid #333;
+            border-radius: 8px; color: #e0e0e0; font-size: 0.9rem;
         }
-        .form-group input:focus {
-            outline: none;
-            border-color: #c084fc;
-        }
-        .form-actions {
-            display: flex;
-            gap: 0.8rem;
-            margin-top: 1rem;
-        }
-        .empty-state {
-            text-align: center;
-            padding: 3rem 1rem;
-            color: #666;
-        }
+        .form-group input:focus { outline: none; border-color: #c084fc; }
+        .form-actions { display: flex; gap: 0.8rem; margin-top: 1rem; }
+        .empty-state { text-align: center; padding: 3rem 1rem; color: #666; }
         .empty-state .icon { font-size: 3rem; margin-bottom: 1rem; }
-        .footer {
-            text-align: center;
-            margin-top: 2rem;
-            color: #555;
-            font-size: 0.8rem;
-        }
-        @media (max-width: 768px) {
-            body { padding: 1rem; }
-            h1 { font-size: 1.8rem; }
-            .form-row { flex-direction: column; }
-        }
+        .footer { text-align: center; margin-top: 2rem; color: #555; font-size: 0.8rem; }
+        @media (max-width: 768px) { body { padding: 1rem; } h1 { font-size: 1.8rem; } .form-row { flex-direction: column; } }
     </style>
 </head>
 <body>
@@ -207,6 +119,9 @@
                     <div class="number" id="urgentCount">0</div>
                     <div class="label">Urgents 🔴</div>
                 </div>
+            </div>
+            <div class="status-bar">
+                <span id="syncStatus" class="status-tag status-loading">⏳ Connexion Supabase...</span>
             </div>
         </header>
 
@@ -242,43 +157,73 @@
                 <thead>
                     <tr>
                         <th>Produit</th>
-                        <th>📦 Date commande</th>
-                        <th>📬 Date réception</th>
-                        <th>⏰ Date limite</th>
+                        <th>📦 Commande</th>
+                        <th>📬 Réception</th>
+                        <th>⏰ Limite commentaire</th>
                         <th>Statut</th>
                         <th style="text-align:center;">Actions</th>
                     </tr>
                 </thead>
-                <tbody id="productTableBody">
-                </tbody>
+                <tbody id="productTableBody"></tbody>
             </table>
         </div>
         <div class="footer">
-            🛡️ Données stockées localement dans votre navigateur · <span id="updateDate"></span>
+            ☁️ Données synchronisées sur Supabase · <span id="updateDate"></span>
         </div>
     </div>
 
     <script>
-        const STORAGE_KEY = 'amazon_viewer_products';
+        const SUPABASE_URL = 'https://supabase.sagetech.vip';
+        const SUPABASE_KEY = atob('ZXlKMGVYQWlPaUpLVjFRaUxDSmhiR2NpT2lKSVV6STFOaUo5LmV5SnBjM01pT2lKemRYQmhZbUZ6WlNJc0ltbGhkQ0k2TVRjM09EYzROVEl3TUN3aVpYaHdJam8wT1RNME5EVTRPREF3TENKeWIyeGxJam9pYzJWeWRtbGpaVjl5YjJ4bEluMC5pRGFFZmU0cEhNemtlZmY5Q3U4Yy1ZandEQWVzNU5ZNzVvUEQxb1ZtdUlr');
+        const TABLE_NAME = 'amazon_products';
 
-        function getProducts() {
-            const data = localStorage.getItem(STORAGE_KEY);
-            return data ? JSON.parse(data) : [];
+        let STATUS_SYNCING = false;
+
+        function setSyncStatus(msg, cls) {
+            const el = document.getElementById('syncStatus');
+            el.textContent = msg;
+            el.className = 'status-tag ' + cls;
         }
 
-        function saveProducts(products) {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(products));
-            render();
+        // ─── Supabase REST helpers ───
+        async function supabaseFetch(method, params) {
+            const url = SUPABASE_URL + '/rest/v1/' + TABLE_NAME + (params?.query || '');
+            const headers = {
+                'apikey': SUPABASE_KEY,
+                'Authorization': 'Bearer ' + SUPABASE_KEY,
+                'Content-Type': 'application/json',
+                'Prefer': 'return=representation'
+            };
+            const res = await fetch(url, {
+                method: method || 'GET',
+                headers: headers,
+                body: params?.body ? JSON.stringify(params.body) : undefined
+            });
+            if (!res.ok) {
+                const text = await res.text();
+                throw new Error(`HTTP ${res.status}: ${text}`);
+            }
+            return res.status === 204 ? null : await res.json();
         }
 
-        function toggleForm() {
-            document.getElementById('addForm').classList.toggle('visible');
+        // ─── Product CRUD ───
+        async function loadProducts() {
+            try {
+                setSyncStatus('⏳ Chargement...', 'status-loading');
+                const data = await supabaseFetch('GET', { query: '?order=deadline.asc' });
+                render(data || []);
+                setSyncStatus('☁️ Synchronisé', 'status-saved');
+            } catch (e) {
+                console.error('Load error:', e);
+                setSyncStatus('❌ Erreur: ' + e.message, 'status-error');
+                render([]);
+            }
         }
 
-        function addProduct() {
+        async function addProduct() {
             const product = document.getElementById('inputProduct').value.trim();
             const ordered = document.getElementById('inputOrdered').value;
-            const received = document.getElementById('inputReceived').value;
+            const received = document.getElementById('inputReceived').value || null;
             const deadline = document.getElementById('inputDeadline').value;
 
             if (!product || !ordered || !deadline) {
@@ -286,52 +231,57 @@
                 return;
             }
 
-            const products = getProducts();
-            products.push({
-                id: Date.now(),
-                product,
-                ordered,
-                received,
-                deadline,
-                created: new Date().toISOString()
-            });
-            saveProducts(products);
-
-            // Reset form
-            document.getElementById('inputProduct').value = '';
-            document.getElementById('inputOrdered').value = '';
-            document.getElementById('inputReceived').value = '';
-            document.getElementById('inputDeadline').value = '';
-            toggleForm();
+            try {
+                setSyncStatus('⏳ Enregistrement...', 'status-loading');
+                const body = { product, ordered, received, deadline };
+                const result = await supabaseFetch('POST', { body });
+                console.log('Saved:', result);
+                document.getElementById('inputProduct').value = '';
+                document.getElementById('inputOrdered').value = '';
+                document.getElementById('inputReceived').value = '';
+                document.getElementById('inputDeadline').value = '';
+                toggleForm();
+                await loadProducts();
+                setSyncStatus('✅ Enregistré', 'status-saved');
+            } catch (e) {
+                console.error('Save error:', e);
+                setSyncStatus('❌ Erreur: ' + e.message, 'status-error');
+                alert('❌ Erreur lors de l\'enregistrement: ' + e.message);
+            }
         }
 
-        function deleteProduct(id) {
+        async function deleteProduct(id) {
             if (!confirm('Supprimer ce produit ?')) return;
-            const products = getProducts().filter(p => p.id !== id);
-            saveProducts(products);
+            try {
+                setSyncStatus('⏳ Suppression...', 'status-loading');
+                await supabaseFetch('DELETE', { query: '?id=eq.' + id });
+                await loadProducts();
+                setSyncStatus('✅ Supprimé', 'status-saved');
+            } catch (e) {
+                console.error('Delete error:', e);
+                setSyncStatus('❌ Erreur: ' + e.message, 'status-error');
+            }
         }
 
-        function getStatus(deadline, received) {
-            if (!deadline) return { label: '⚠️ Incomplet', cls: 'status-urgent' };
-            const today = new Date();
-            today.setHours(0,0,0,0);
-            const dl = new Date(deadline + 'T23:59:59');
-
-            if (received) return { label: '✅ Commenté', cls: 'status-ok' };
-            if (dl < today) return { label: '🔴 Urgent', cls: 'status-urgent' };
-            const diffDays = Math.ceil((dl - today) / (1000*60*60*24));
-            if (diffDays <= 3) return { label: '🟡 Dans ' + diffDays + 'j', cls: 'status-urgent' };
-            return { label: '⏳ ' + diffDays + 'j restants', cls: 'status-pending' };
-        }
-
-        function formatDate(d) {
+        // ─── Render ───
+        function fmtDate(d) {
             if (!d) return '—';
-            const parts = d.split('-');
-            return parts[2] + '/' + parts[1] + '/' + parts[0];
+            const p = d.split('-');
+            return p[2] + '/' + p[1] + '/' + p[0];
         }
 
-        function render() {
-            const products = getProducts();
+        function getBadge(deadline, received) {
+            if (!deadline) return { label: '⚠️ Incomplet', cls: 'badge-urgent' };
+            const today = new Date(); today.setHours(0,0,0,0);
+            const dl = new Date(deadline + 'T23:59:59');
+            if (received) return { label: '✅ Commenté', cls: 'badge-ok' };
+            if (dl < today) return { label: '🔴 Urgent', cls: 'badge-urgent' };
+            const d = Math.ceil((dl - today) / (1000*60*60*24));
+            if (d <= 3) return { label: '🟡 Dans ' + d + 'j', cls: 'badge-urgent' };
+            return { label: '⏳ ' + d + 'j restants', cls: 'badge-pending' };
+        }
+
+        function render(products) {
             const tbody = document.getElementById('productTableBody');
 
             document.getElementById('totalCount').textContent = products.length;
@@ -348,24 +298,29 @@
                 return;
             }
 
-            tbody.innerHTML = products.sort((a,b) => new Date(b.deadline||'2099') - new Date(a.deadline||'2099')).map(p => {
-                const status = getStatus(p.deadline, p.received);
+            tbody.innerHTML = products.map(p => {
+                const b = getBadge(p.deadline, p.received);
                 return `<tr>
                     <td><strong>${p.product}</strong></td>
-                    <td>${formatDate(p.ordered)}</td>
-                    <td>${formatDate(p.received)}</td>
-                    <td>${formatDate(p.deadline)}</td>
-                    <td><span class="status-badge ${status.cls}">${status.label}</span></td>
+                    <td>${fmtDate(p.ordered)}</td>
+                    <td>${fmtDate(p.received)}</td>
+                    <td>${fmtDate(p.deadline)}</td>
+                    <td><span class="badge ${b.cls}">${b.label}</span></td>
                     <td style="text-align:center;">
-                        <button class="btn btn-delete" onclick="deleteProduct(${p.id})">🗑️</button>
+                        <button class="btn btn-del" onclick="deleteProduct(${p.id})">🗑️</button>
                     </td>
                 </tr>`;
             }).join('');
 
-            document.getElementById('updateDate').textContent = 'Dernière mise à jour : ' + new Date().toLocaleDateString('fr-FR', {day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'});
+            document.getElementById('updateDate').textContent = new Date().toLocaleDateString('fr-FR', {day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'});
         }
 
-        render();
+        function toggleForm() {
+            document.getElementById('addForm').classList.toggle('visible');
+        }
+
+        // ─── Init ───
+        loadProducts();
     </script>
 </body>
 </html>
