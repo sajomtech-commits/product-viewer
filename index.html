@@ -89,16 +89,16 @@ tr:hover td{background:rgba(192,132,252,.04)}
 </div>
 
 <div class="toolbar">
-  <input type="text" id="search" placeholder="Rechercher..." oninput="R()">
-  <select id="filterStatus" onchange="R()">
+  <input type="text" id="search" placeholder="Rechercher...">
+  <select id="filterStatus">
     <option value="all">Tous</option>
     <option value="pending">En cours</option>
     <option value="comment">Commente</option>
     <option value="refund">Rembourse</option>
     <option value="late">En retard</option>
   </select>
-  <button class="btn btn-pri" onclick="S()" id="addBtn">+ Ajouter</button>
-  <button class="btn btn-ico" onclick="forceSync()" id="syncBtn" title="Forcer synchronisation">€</button>
+  <button class="btn btn-pri" id="addBtn">+ Ajouter</button>
+  <button class="btn btn-ico" id="syncBtn" title="Forcer synchronisation">€</button>
 </div>
 
 <div class="form-box" id="formBox">
@@ -117,8 +117,8 @@ tr:hover td{background:rgba(192,132,252,.04)}
     </div>
   </div>
   <div class="fa">
-    <button class="btn btn-pri" onclick="A()">Enregistrer</button>
-    <button class="btn btn-sec" onclick="S()">Annuler</button>
+    <button class="btn btn-pri" id="saveBtn">Enregistrer</button>
+    <button class="btn btn-sec" id="cancelBtn">Annuler</button>
   </div>
 </div>
 
@@ -140,23 +140,25 @@ tr:hover td{background:rgba(192,132,252,.04)}
 </div>
 
 <div class="pagination" id="pagBox">
-  <button id="pagPrev" onclick="GP(-1)">Prec.</button>
+  <button id="pagPrev">Prec.</button>
   <span class="pi" id="pagInfo"></span>
-  <button id="pagNext" onclick="GP(1)">Suiv.</button>
+  <button id="pagNext">Suiv.</button>
 </div>
 
-<div class="ft">Viewer v8 € Donnees stockees localement + cloud</div>
+<div class="ft">Viewer v9 € Donnees stockees localement + cloud</div>
 </div>
 <script>
 
 var U='https://supabase.sagetech.vip',K='eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJzdXBhYmFzZSIsImlhdCI6MTc3ODc4NTIwMCwiZXhwIjo0OTM0NDU4ODAwLCJyb2xlIjoic2VydmljZV9yb2xlIn0.iDaEfe4pHMzkeff9Cu8c-YjwDAes5NY75oPD1oVmuIk',F='budget-data/product-viewer.json';
 var P=[],cp=1,pp=20,ei=null,cl=false;
 
+function byId(id){return document.getElementById(id)}
+
 function bd(cls,txt){
-  var e=document.getElementById('syncBadge'),t=document.getElementById('syncText');
+  var e=byId('syncBadge'),t=byId('syncText');
   if(e){e.className='sync-badge sync-'+cls;if(t)t.textContent=txt}
 }
-function $(id){return document.getElementById(id)}
+
 function SL(){try{localStorage.setItem('vp',JSON.stringify(P))}catch(e){}}
 function eur(v){var n=v||0;return n.toFixed(2)+'€'}
 function fm(d){return d||'€'}
@@ -167,92 +169,103 @@ function bg(x){
   if(x.commentDate){var t=new Date(x.commentDate);return t<new Date()?{c:'badge-urg',l:'En retard'}:{c:'badge-pending',l:'En cours'}}
   return{c:'badge-pending',l:'En cours'}
 }
-async function ld(){
+
+async function loadData(){
   bd('busy','Chargement...');
   try{
     var r=await fetch(U+'/storage/v1/object/'+F,{headers:{'apikey':K,'Authorization':'Bearer '+K}});
-    if(r.status===404){bd('ok','Synchronise');cl=true;P=[];SL();R();return}
+    if(r.status===404){bd('ok','Synchronise');cl=true;P=[];SL();render();return}
     if(!r.ok)throw new Error();
     var d=await r.json();
-    if(Array.isArray(d)){P=d;cl=true;bd('ok','Synchronise');SL();R();return}
+    if(Array.isArray(d)){P=d;cl=true;bd('ok','Synchronise');SL();render();return}
     throw new Error();
   }catch(e){bd('err','Hors ligne')}
   var ls=localStorage.getItem('vp');
-  if(ls)try{var p=JSON.parse(ls);if(p.length>0){P=p;bd('ok','Local');R();return}}catch(e){}
-  console.log('No data found - initializing with test product');
+  if(ls)try{var p=JSON.parse(ls);if(p.length>0){P=p;bd('ok','Local');render();return}}catch(e){}
   P=[{id:1,product:'Tonnelle',price:0,ordered:'',received:'',refund:0,pp:'',commentDate:'',commentPosted:false,refundPaid:false}];
-  SL();R()
+  SL();render()
 }
-async function sv(){
+
+async function saveData(){
   SL();
   try{var r=await fetch(U+'/storage/v1/object/'+F,{method:'PUT',headers:{'apikey':K,'Authorization':'Bearer '+K,'Content-Type':'application/json'},body:JSON.stringify(P)});if(r.ok){bd('ok','Synchronise');cl=true}else throw new Error()}catch(e){bd('err','Hors ligne')}
 }
+
 async function forceSync(){
   bd('busy','Sync...');
   try{
     var r=await fetch(U+'/storage/v1/object/'+F,{headers:{'apikey':K,'Authorization':'Bearer '+K}});
-    if(r.status===404){P=[];cl=true;bd('ok','Synchronise');SL();R();return}
+    if(r.status===404){P=[];cl=true;bd('ok','Synchronise');SL();render();return}
     if(!r.ok)throw new Error();
     var d=await r.json();
-    if(Array.isArray(d)&&d.length>=P.length){P=d;cl=true;bd('ok','Synchronise');SL();R();return}
-    if(Array.isArray(d)&&d.length<P.length){await sv();return}
+    if(Array.isArray(d)&&d.length>=P.length){P=d;cl=true;bd('ok','Synchronise');SL();render();return}
+    if(Array.isArray(d)&&d.length<P.length){await saveData();return}
     throw new Error()
-  }catch(e){if(P.length>0&&cl)await sv();else bd('err','Hors ligne')}
+  }catch(e){if(P.length>0&&cl)await saveData();else bd('err','Hors ligne')}
 }
-function clr(){
-  $('inpP').value='';$('inpPrice').value='';$('inpO').value='';$('inpR').value='';
-  $('inpRefund').value='';$('inpPP').value='';$('inpCD').value='';$('inpCP').checked=false
+
+function clearForm(){
+  byId('inpP').value='';byId('inpPrice').value='';byId('inpO').value='';byId('inpR').value='';
+  byId('inpRefund').value='';byId('inpPP').value='';byId('inpCD').value='';byId('inpCP').checked=false
 }
-function S(){
-  var fb=$('formBox');fb.classList.toggle('show');
-  if(!fb.classList.contains('show')){ei=null;$('addBtn').textContent='+ Ajouter';clr()}
-  else $('addBtn').textContent='X Fermer'
+
+function toggleForm(){
+  var fb=byId('formBox');
+  if(!fb)return;
+  fb.classList.toggle('show');
+  if(!fb.classList.contains('show')){ei=null;byId('addBtn').textContent='+ Ajouter';clearForm()}
+  else byId('addBtn').textContent='X Fermer'
 }
-async function A(){
-  var p=$('inpP').value.trim(),pr=parseFloat($('inpPrice').value)||0,o=$('inpO').value,r=$('inpR').value||'';
-  var rf=parseFloat($('inpRefund').value)||0,pp=$('inpPP').value,cd=$('inpCD').value,cp=$('inpCP').checked;
+
+async function addProduct(){
+  var p=(byId('inpP').value||'').trim(),pr=parseFloat(byId('inpPrice').value)||0,o=byId('inpO').value,r=byId('inpR').value||'';
+  var rf=parseFloat(byId('inpRefund').value)||0,px=byId('inpPP').value,cd=byId('inpCD').value,cp=byId('inpCP').checked;
   if(!p||!o||!cd){alert('Produit, date commande et deadline requis');return}
   if(ei){
     var idx=P.findIndex(function(x){return x.id===ei});
-    if(idx!==-1)P[idx]={id:ei,product:p,price:pr,ordered:o,received:r,refund:rf,pp:pp,commentDate:cd,commentPosted:cp,refundPaid:P[idx].refundPaid};
-    ei=null;$('addBtn').textContent='+ Ajouter'
+    if(idx!==-1)P[idx]={id:ei,product:p,price:pr,ordered:o,received:r,refund:rf,pp:px,commentDate:cd,commentPosted:cp,refundPaid:P[idx].refundPaid};
+    ei=null;byId('addBtn').textContent='+ Ajouter'
   } else {
-    P.push({id:Date.now(),product:p,price:pr,ordered:o,received:r,refund:rf,pp:pp,commentDate:cd,commentPosted:cp,refundPaid:false})
+    P.push({id:Date.now(),product:p,price:pr,ordered:o,received:r,refund:rf,pp:px,commentDate:cd,commentPosted:cp,refundPaid:false})
   }
-  clr();S();await sv();R()
+  clearForm();toggleForm();await saveData();render()
 }
-function E(id){
+
+function editProduct(id){
   var x=P.find(function(p){return p.id===id});if(!x)return;
-  $('inpP').value=x.product||'';$('inpPrice').value=x.price||'';$('inpO').value=x.ordered||'';
-  $('inpR').value=x.received||'';$('inpRefund').value=x.refund||'';$('inpPP').value=x.pp||'';
-  $('inpCD').value=x.commentDate||'';$('inpCP').checked=!!x.commentPosted;
-  ei=id;$('addBtn').textContent='X Fermer';$('formBox').classList.add('show');$('inpP').focus()
+  byId('inpP').value=x.product||'';byId('inpPrice').value=x.price||'';byId('inpO').value=x.ordered||'';
+  byId('inpR').value=x.received||'';byId('inpRefund').value=x.refund||'';byId('inpPP').value=x.pp||'';
+  byId('inpCD').value=x.commentDate||'';byId('inpCP').checked=!!x.commentPosted;
+  ei=id;byId('addBtn').textContent='X Fermer';byId('formBox').classList.add('show');byId('inpP').focus()
 }
-function T(id,f){
+
+function toggleField(id,f){
   var idx=P.findIndex(function(x){return x.id===id});if(idx===-1)return;
   if(f==='cp')P[idx].commentPosted=!P[idx].commentPosted;
   else if(f==='rp')P[idx].refundPaid=!P[idx].refundPaid;
-  sv();R()
+  saveData();render()
 }
-async function D(id){
+
+async function deleteProduct(id){
   if(!confirm('Supprimer ce produit ?'))return;
-  P=P.filter(function(x){return x.id!==id});await sv();R()
+  P=P.filter(function(x){return x.id!==id});await saveData();render()
 }
-function R(){
-  var q=$('search').value.toLowerCase(),fs=$('filterStatus').value;
-  var fl=P.filter(function(x){return x.product.toLowerCase().includes(q)});
+
+function render(){
+  var q=(byId('search').value||'').toLowerCase(),fs=byId('filterStatus').value;
+  var fl=P.filter(function(x){return (x.product||'').toLowerCase().includes(q)});
   if(fs==='pending')fl=fl.filter(function(x){return !x.commentPosted&&!x.refundPaid});
   else if(fs==='comment')fl=fl.filter(function(x){return x.commentPosted&&!x.refundPaid});
   else if(fs==='refund')fl=fl.filter(function(x){return x.refundPaid});
   else if(fs==='late')fl=fl.filter(function(x){if(x.refundPaid)return false;if(!x.commentDate)return false;return new Date(x.commentDate)<new Date()});
-  fl.sort(function(a,b){return new Date(b.ordered)-new Date(a.ordered)});
-  $('s-total').textContent=P.length;
+  fl.sort(function(a,b){return (new Date(b.ordered||0))-(new Date(a.ordered||0))});
+  byId('s-total').textContent=P.length;
   var inv=P.reduce(function(s,x){return s+(x.price||0)},0);
   var rd=P.filter(function(x){return !x.refundPaid}).reduce(function(s,x){return s+(x.refund||0)},0);
   var rp=P.filter(function(x){return x.refundPaid}).reduce(function(s,x){return s+(x.refund||0)},0);
-  $('s-invest').textContent=eur(inv);$('s-refund-due').textContent=eur(rd);$('s-refund-paid').textContent=eur(rp);
+  byId('s-invest').textContent=eur(inv);byId('s-refund-due').textContent=eur(rd);byId('s-refund-paid').textContent=eur(rp);
   var pct=inv>0?((rd+rp)/inv*100).toFixed(1)+'%':'0%',cmt=P.length>0?(P.filter(function(x){return x.commentPosted}).length/P.length*100).toFixed(0)+'%':'0%';
-  $('s-cmt-pct').textContent=cmt;
+  byId('s-cmt-pct').textContent=cmt;
   var sumEls=['sInvest','sRefundDue','sRefundPaid','sNet','sProfit','sCmtPct'];
   for(var i=0;i<sumEls.length;i++){var el=document.getElementById(sumEls[i]);if(!el)continue;
     if(sumEls[i]==='sInvest')el.textContent=eur(inv);else if(sumEls[i]==='sRefundDue')el.textContent=eur(rd);
@@ -261,40 +274,122 @@ function R(){
   }
   var tp=Math.max(1,Math.ceil(fl.length/pp));if(cp>tp)cp=tp;
   var pg=fl.slice((cp-1)*pp,(cp-1)*pp+pp);
-  RT(pg);RC(pg);
-  $('pagInfo').textContent=fl.length>0?'Page '+cp+'/'+tp+' ('+fl.length+' produits)':'Aucun produit';
-  $('pagPrev').disabled=cp<=1;$('pagNext').disabled=cp>=tp
+  renderTable(pg);renderCards(pg);
+  byId('pagInfo').textContent=fl.length>0?'Page '+cp+'/'+tp+' ('+fl.length+' produits)':'Aucun produit';
+  byId('pagPrev').disabled=cp<=1;byId('pagNext').disabled=cp>=tp
 }
-function GP(d){cp+=d;R()}
-function RT(fl){
-  var tb=$('tb');
+
+function goPage(d){cp+=d;render()}
+
+function renderTable(fl){
+  var tb=byId('tb');
+  if(!tb)return;
   if(!fl.length){tb.innerHTML='<tr><td colspan="11" class="empty"><div style="font-size:2rem;margin-bottom:.5rem">€</div>Aucun produit</td></tr>';return}
-  tb.innerHTML=fl.map(function(x){
-    var b=bg(x),pp=x.pp==='yes'?'<span class="pp-tag pp-yes">Frais</span>':x.pp==='no'?'<span class="pp-tag pp-no">Sans</span>':'€';
-    return '<tr><td><strong>'+es(x.product)+'</strong></td><td>'+eur(x.price)+'</td>'+
+  var html='';
+  for(var i=0;i<fl.length;i++){
+    var x=fl[i],b=bg(x);
+    var pp=x.pp==='yes'?'<span class="pp-tag pp-yes">Frais</span>':x.pp==='no'?'<span class="pp-tag pp-no">Sans</span>':'€';
+    html+='<tr><td><strong>'+es(x.product)+'</strong></td><td>'+eur(x.price)+'</td>'+
       '<td style="font-size:.75rem;color:var(--muted)">'+fm(x.ordered)+'</td>'+
       '<td style="font-size:.75rem;color:var(--muted)">'+fm(x.received)+'</td><td>'+eur(x.refund)+'</td>'+
       '<td>'+pp+'</td><td style="font-size:.75rem">'+fm(x.commentDate)+'</td>'+
-      '<td style="text-align:center"><input type="checkbox"'+(x.commentPosted?' checked':'')+' onchange="T('+x.id+','cp')"></td>'+
-      '<td style="text-align:center"><input type="checkbox"'+(x.refundPaid?' checked':'')+' onchange="T('+x.id+','rp')"></td>'+
+      '<td style="text-align:center"><input type="checkbox" data-id="'+x.id+'" data-field="cp" class="ck-field"'+(x.commentPosted?' checked':'')+'></td>'+
+      '<td style="text-align:center"><input type="checkbox" data-id="'+x.id+'" data-field="rp" class="ck-field"'+(x.refundPaid?' checked':'')+'></td>'+
       '<td><span class="badge '+b.c+'">'+b.l+'</span></td>'+
-      '<td style="text-align:center"><button class="bta bta-edit" onclick="E('+x.id+')">M</button><button class="bta bta-del" onclick="D('+x.id+')">X</button></td></tr>'
-  }).join('')
+      '<td style="text-align:center"><button class="bta bta-edit btn-edit" data-id="'+x.id+'">M</button><button class="bta bta-del btn-del" data-id="'+x.id+'">X</button></td></tr>'
+  }
+  tb.innerHTML=html;
+  // Attach events to dynamically created elements
+  var cks=tb.querySelectorAll('.ck-field');
+  for(var i=0;i<cks.length;i++){
+    cks[i].addEventListener('change',function(){
+      toggleField(parseInt(this.getAttribute('data-id')),this.getAttribute('data-field'));
+    })
+  }
+  var eds=tb.querySelectorAll('.btn-edit');
+  for(var i=0;i<eds.length;i++){
+    eds[i].addEventListener('click',function(){
+      editProduct(parseInt(this.getAttribute('data-id')));
+    })
+  }
+  var dels=tb.querySelectorAll('.btn-del');
+  for(var i=0;i<dels.length;i++){
+    dels[i].addEventListener('click',function(){
+      deleteProduct(parseInt(this.getAttribute('data-id')));
+    })
+  }
 }
-function RC(fl){
-  var cv=$('cardView');
+
+function renderCards(fl){
+  var cv=byId('cardView');
+  if(!cv)return;
   if(!fl.length){cv.innerHTML='<div class="empty">Aucun produit</div>';return}
-  cv.innerHTML=fl.map(function(x){
-    var b=bg(x),ppx=x.pp==='yes'?'Frais':x.pp==='no'?'Sans':'€';
-    return '<div class="card-row"><div class="cr-prod">'+es(x.product)+' <span style="color:var(--muted);font-weight:400">'+eur(x.price)+'</span></div>'+
+  var html='';
+  for(var i=0;i<fl.length;i++){
+    var x=fl[i],b=bg(x),ppx=x.pp==='yes'?'Frais':x.pp==='no'?'Sans':'€';
+    html+='<div class="card-row"><div class="cr-prod">'+es(x.product)+' <span style="color:var(--muted);font-weight:400">'+eur(x.price)+'</span></div>'+
       '<div class="cr-dates"><span>Cde: '+fm(x.ordered)+'</span><span>Recu: '+fm(x.received)+'</span></div>'+
       '<div class="cr-dates"><span>Deadline: '+fm(x.commentDate)+'</span><span>Remb.: '+eur(x.refund)+'</span><span>PP: '+ppx+'</span></div>'+
       '<div style="margin:.3rem 0"><span class="badge '+b.c+'">'+b.l+'</span></div>'+
-      '<div class="cr-cbox"><input type="checkbox"'+(x.commentPosted?' checked':'')+' onchange="T('+x.id+','cp')"><span>Commente</span></div>'+
-      '<div class="cr-cbox"><input type="checkbox"'+(x.refundPaid?' checked':'')+' onchange="T('+x.id+','rp')"><span>Remb. recu</span></div>'+
-      '<div class="cr-actions"><button class="bta bta-edit" onclick="E('+x.id+')">M</button><button class="bta bta-del" onclick="D('+x.id+')">X</button></div></div>'
-  }).join('')
+      '<div class="cr-cbox"><input type="checkbox" data-id="'+x.id+'" data-field="cp" class="ck-field"'+(x.commentPosted?' checked':'')+'><span>Commente</span></div>'+
+      '<div class="cr-cbox"><input type="checkbox" data-id="'+x.id+'" data-field="rp" class="ck-field"'+(x.refundPaid?' checked':'')+'><span>Remb. recu</span></div>'+
+      '<div class="cr-actions"><button class="bta bta-edit btn-edit" data-id="'+x.id+'">M</button><button class="bta bta-del btn-del" data-id="'+x.id+'">X</button></div></div>'
+  }
+  cv.innerHTML=html;
+  // Attach events
+  var cks=cv.querySelectorAll('.ck-field');
+  for(var i=0;i<cks.length;i++){
+    cks[i].addEventListener('change',function(){
+      toggleField(parseInt(this.getAttribute('data-id')),this.getAttribute('data-field'));
+    })
+  }
+  var eds=cv.querySelectorAll('.btn-edit');
+  for(var i=0;i<eds.length;i++){
+    eds[i].addEventListener('click',function(){
+      editProduct(parseInt(this.getAttribute('data-id')));
+    })
+  }
+  var dels=cv.querySelectorAll('.btn-del');
+  for(var i=0;i<dels.length;i++){
+    dels[i].addEventListener('click',function(){
+      deleteProduct(parseInt(this.getAttribute('data-id')));
+    })
+  }
 }
-window.addEventListener('keydown',function(e){if(e.key==='Escape'&&$('formBox').classList.contains('show'))S()});
-ld();
+
+// ===== Bootstrap: attach listeners =====
+document.addEventListener('DOMContentLoaded',function(){
+  var addBtn=byId('addBtn');
+  if(addBtn)addBtn.addEventListener('click',toggleForm);
+
+  var saveBtn=byId('saveBtn');
+  if(saveBtn)saveBtn.addEventListener('click',addProduct);
+
+  var cancelBtn=byId('cancelBtn');
+  if(cancelBtn)cancelBtn.addEventListener('click',toggleForm);
+
+  var syncBtn=byId('syncBtn');
+  if(syncBtn)syncBtn.addEventListener('click',forceSync);
+
+  var search=byId('search');
+  if(search)search.addEventListener('input',render);
+
+  var filter=byId('filterStatus');
+  if(filter)filter.addEventListener('change',render);
+
+  var pagPrev=byId('pagPrev');
+  if(pagPrev)pagPrev.addEventListener('click',function(){goPage(-1)});
+
+  var pagNext=byId('pagNext');
+  if(pagNext)pagNext.addEventListener('click',function(){goPage(1)});
+
+  document.addEventListener('keydown',function(e){
+    if(e.key==='Escape'){
+      var fb=byId('formBox');
+      if(fb&&fb.classList.contains('show'))toggleForm();
+    }
+  });
+
+  loadData();
+});
 </script></body></html>
