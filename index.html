@@ -109,6 +109,7 @@ tr:hover td{background:rgba(192,132,252,.04)}
     <div class="fg"><label>Date reception</label><input type="date" id="inpR"></div>
     <div class="fg"><label>Remb. du (€)</label><input type="number" id="inpRefund" placeholder="0.00" step="0.01" min="0"></div>
     <div class="fg"><label>PayPal</label><select id="inpPP"><option value="">€</option><option value="yes">Avec frais</option><option value="no">Sans frais</option></select></div>
+    <div class="fg"><label>Contact vendeur</label><input id="inpContact" placeholder="Messenger, WhatsApp, SMS..."></div>
     <div class="fg"><label>Deadline commentaire</label><input type="date" id="inpCD"></div>
     <div class="fg" style="display:flex;flex-direction:column;justify-content:flex-end">
       <label style="display:flex;align-items:center;gap:.35rem;font-size:.78rem;text-transform:none;letter-spacing:0;color:var(--text);cursor:pointer">
@@ -124,7 +125,7 @@ tr:hover td{background:rgba(192,132,252,.04)}
 
 <div class="tw">
 <table class="table-view" id="mainTable">
-<thead><tr><th>Produit</th><th>Prix</th><th>Cde</th><th>Recu</th><th>Remb.</th><th>PP</th><th>Deadline</th><th>Commente</th><th>Rembourse</th><th>Statut</th><th>Act.</th></tr></thead>
+<thead><tr><th>Produit</th><th>Prix</th><th>Cde</th><th>Recu</th><th>Remb.</th><th>PP</th><th>Contact</th><th>Deadline</th><th>Commente</th><th>Rembourse</th><th>Statut</th><th>Act.</th></tr></thead>
 <tbody id="tb"></tbody>
 </table>
 <div class="card-view" id="cardView" style="display:none"></div>
@@ -145,7 +146,7 @@ tr:hover td{background:rgba(192,132,252,.04)}
   <button id="pagNext">Suiv.</button>
 </div>
 
-<div class="ft">Viewer v9 € Donnees stockees localement + cloud</div>
+<div class="ft">Viewer v11 € Contact vendeur + Donnees stockees localement + cloud</div>
 </div>
 <script>
 
@@ -182,7 +183,7 @@ async function loadData(){
   }catch(e){bd('err','Hors ligne')}
   var ls=localStorage.getItem('vp');
   if(ls)try{var p=JSON.parse(ls);if(p.length>0){P=p;bd('ok','Local');render();return}}catch(e){}
-  P=[{id:1,product:'Tonnelle',price:0,ordered:'',received:'',refund:0,pp:'',commentDate:'',commentPosted:false,refundPaid:false}];
+  P=[{id:1,product:'Tonnelle',price:0,ordered:'',received:'',refund:0,pp:'',contact:'',commentDate:'',commentPosted:false,refundPaid:false}];
   SL();render()
 }
 
@@ -206,7 +207,7 @@ async function forceSync(){
 
 function clearForm(){
   byId('inpP').value='';byId('inpPrice').value='';byId('inpO').value='';byId('inpR').value='';
-  byId('inpRefund').value='';byId('inpPP').value='';byId('inpCD').value='';byId('inpCP').checked=false
+  byId('inpRefund').value='';byId('inpPP').value='';byId('inpContact').value='';byId('inpCD').value='';byId('inpCP').checked=false
 }
 
 function toggleForm(){
@@ -219,14 +220,14 @@ function toggleForm(){
 
 async function addProduct(){
   var p=(byId('inpP').value||'').trim(),pr=parseFloat(byId('inpPrice').value)||0,o=byId('inpO').value,r=byId('inpR').value||'';
-  var rf=parseFloat(byId('inpRefund').value)||0,px=byId('inpPP').value,cd=byId('inpCD').value,cp=byId('inpCP').checked;
+  var rf=parseFloat(byId('inpRefund').value)||0,px=byId('inpPP').value,ct=byId('inpContact').value||'',cd=byId('inpCD').value,cp=byId('inpCP').checked;
   if(!p||!o||!cd){alert('Produit, date commande et deadline requis');return}
   if(ei){
     var idx=P.findIndex(function(x){return x.id===ei});
-    if(idx!==-1)P[idx]={id:ei,product:p,price:pr,ordered:o,received:r,refund:rf,pp:px,commentDate:cd,commentPosted:cp,refundPaid:P[idx].refundPaid};
+    if(idx!==-1)P[idx]={id:ei,product:p,price:pr,ordered:o,received:r,refund:rf,pp:px,contact:ct,commentDate:cd,commentPosted:cp,refundPaid:P[idx].refundPaid};
     ei=null;byId('addBtn').textContent='+ Ajouter'
   } else {
-    P.push({id:Date.now(),product:p,price:pr,ordered:o,received:r,refund:rf,pp:px,commentDate:cd,commentPosted:cp,refundPaid:false})
+    P.push({id:Date.now(),product:p,price:pr,ordered:o,received:r,refund:rf,pp:px,contact:ct,commentDate:cd,commentPosted:cp,refundPaid:false})
   }
   clearForm();toggleForm();await saveData();render()
 }
@@ -235,6 +236,7 @@ function editProduct(id){
   var x=P.find(function(p){return p.id===id});if(!x)return;
   byId('inpP').value=x.product||'';byId('inpPrice').value=x.price||'';byId('inpO').value=x.ordered||'';
   byId('inpR').value=x.received||'';byId('inpRefund').value=x.refund||'';byId('inpPP').value=x.pp||'';
+  byId('inpContact').value=x.contact||'';
   byId('inpCD').value=x.commentDate||'';byId('inpCP').checked=!!x.commentPosted;
   ei=id;byId('addBtn').textContent='X Fermer';byId('formBox').classList.add('show');byId('inpP').focus()
 }
@@ -284,7 +286,7 @@ function goPage(d){cp+=d;render()}
 function renderTable(fl){
   var tb=byId('tb');
   if(!tb)return;
-  if(!fl.length){tb.innerHTML='<tr><td colspan="11" class="empty"><div style="font-size:2rem;margin-bottom:.5rem">€</div>Aucun produit</td></tr>';return}
+  if(!fl.length){tb.innerHTML='<tr><td colspan="12" class="empty"><div style="font-size:2rem;margin-bottom:.5rem">€</div>Aucun produit</td></tr>';return}
   var html='';
   for(var i=0;i<fl.length;i++){
     var x=fl[i],b=bg(x);
@@ -292,7 +294,7 @@ function renderTable(fl){
     html+='<tr><td><strong>'+es(x.product)+'</strong></td><td>'+eur(x.price)+'</td>'+
       '<td style="font-size:.75rem;color:var(--muted)">'+fm(x.ordered)+'</td>'+
       '<td style="font-size:.75rem;color:var(--muted)">'+fm(x.received)+'</td><td>'+eur(x.refund)+'</td>'+
-      '<td>'+pp+'</td><td style="font-size:.75rem">'+fm(x.commentDate)+'</td>'+
+      '<td>'+pp+'</td><td style="font-size:.75rem;color:var(--muted)">'+es(x.contact||'')+'</td><td style="font-size:.75rem">'+fm(x.commentDate)+'</td>'+\
       '<td style="text-align:center"><input type="checkbox" data-id="'+x.id+'" data-field="cp" class="ck-field"'+(x.commentPosted?' checked':'')+'></td>'+
       '<td style="text-align:center"><input type="checkbox" data-id="'+x.id+'" data-field="rp" class="ck-field"'+(x.refundPaid?' checked':'')+'></td>'+
       '<td><span class="badge '+b.c+'">'+b.l+'</span></td>'+
@@ -329,7 +331,7 @@ function renderCards(fl){
     var x=fl[i],b=bg(x),ppx=x.pp==='yes'?'Frais':x.pp==='no'?'Sans':'€';
     html+='<div class="card-row"><div class="cr-prod">'+es(x.product)+' <span style="color:var(--muted);font-weight:400">'+eur(x.price)+'</span></div>'+
       '<div class="cr-dates"><span>Cde: '+fm(x.ordered)+'</span><span>Recu: '+fm(x.received)+'</span></div>'+
-      '<div class="cr-dates"><span>Deadline: '+fm(x.commentDate)+'</span><span>Remb.: '+eur(x.refund)+'</span><span>PP: '+ppx+'</span></div>'+
+      '<div class="cr-dates"><span>Deadline: '+fm(x.commentDate)+'</span><span>Remb.: '+eur(x.refund)+'</span><span>PP: '+ppx+'</span><span>Contact: '+es(x.contact||'')+'</span></div>'+
       '<div style="margin:.3rem 0"><span class="badge '+b.c+'">'+b.l+'</span></div>'+
       '<div class="cr-cbox"><input type="checkbox" data-id="'+x.id+'" data-field="cp" class="ck-field"'+(x.commentPosted?' checked':'')+'><span>Commente</span></div>'+
       '<div class="cr-cbox"><input type="checkbox" data-id="'+x.id+'" data-field="rp" class="ck-field"'+(x.refundPaid?' checked':'')+'><span>Remb. recu</span></div>'+
