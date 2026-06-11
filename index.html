@@ -294,7 +294,7 @@ function renderTable(fl){
     html+='<tr><td><strong>'+es(x.product)+'</strong></td><td>'+eur(x.price)+'</td>'+
       '<td style="font-size:.75rem;color:var(--muted)">'+fm(x.ordered)+'</td>'+
       '<td style="font-size:.75rem;color:var(--muted)">'+fm(x.received)+'</td><td>'+eur(x.refund)+'</td>'+
-      '<td>'+pp+'</td><td style="font-size:.75rem;color:var(--muted)">'+es(x.contact||'')+'</td><td style="font-size:.75rem">'+fm(x.commentDate)+'</td>'+\
+      '<td>'+pp+'</td><td style="font-size:.75rem;color:var(--muted)">'+es(x.contact||'')+'</td><td style="font-size:.75rem">'+fm(x.commentDate)+'</td>'+
       '<td style="text-align:center"><input type="checkbox" data-id="'+x.id+'" data-field="cp" class="ck-field"'+(x.commentPosted?' checked':'')+'></td>'+
       '<td style="text-align:center"><input type="checkbox" data-id="'+x.id+'" data-field="rp" class="ck-field"'+(x.refundPaid?' checked':'')+'></td>'+
       '<td><span class="badge '+b.c+'">'+b.l+'</span></td>'+
